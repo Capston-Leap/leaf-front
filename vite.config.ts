@@ -32,6 +32,22 @@ export default defineConfig({
         find: '@home',
         replacement: path.resolve(__dirname, 'src/pages/home'),
       },
+      {
+        find: '@onboarding',
+        replacement: path.resolve(__dirname, 'src/pages/onboarding'),
+      },
+      {
+        find: '@mission',
+        replacement: path.resolve(__dirname, 'src/pages/mission'),
+      },
+      {
+        find: '@community',
+        replacement: path.resolve(__dirname, 'src/pages/community'),
+      },
+      {
+        find: '@my',
+        replacement: path.resolve(__dirname, 'src/pages/my'),
+      },
     ],
   },
 });

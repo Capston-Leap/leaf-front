@@ -29,6 +29,10 @@
       "@icon/*": ["shared/assets/icon/*"],
       "@image/*": ["shared/assets/image/*"],
       "@home/*": ["pages/home/*"],
+      "@mission/*": ["pages/mission/*"],
+      "@onboarding/*": ["pages/onboarding/*"],
+      "@my/*": ["pages/my/*"],
+      "@community/*": ["pages/community/*"]
     }
   },
   "include": ["src"]
