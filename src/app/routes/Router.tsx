@@ -2,6 +2,10 @@ import { createBrowserRouter } from 'react-router';
 
 import { RootLayout } from '@app/layout';
 import { HomePage } from "@pages/home";
+import { OnboardingPage } from "@pages/onboarding";
+import { CommunityPage } from "@pages/community";
+import { MyPage } from "@pages/my";
+import { MissionPage } from "@pages/mission";
 
 export const router = createBrowserRouter([
   {
@@ -9,8 +13,28 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       {
-        path: 'home',
+        index: true,
+        element: <OnboardingPage />,
+      },
+      {
+        path: '/home',
         element: <HomePage />,
+      },
+      {
+        path: '/onboarding',
+        element: <OnboardingPage />,
+      },
+      {
+        path: '/mission',
+        element: <MissionPage />,
+      },
+      {
+        path: '/community',
+        element: <CommunityPage />,
+      },
+      {
+        path: '/my',
+        element: <MyPage />,
       },
     ],
   },
