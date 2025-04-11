@@ -1,11 +1,11 @@
 import NavBar from "@shared/ui/NavBar.tsx";
 
-export const HomePage = () => {
+export const MyPage = () => {
   return (
     <div>
-      <h1>Home Page</h1>
+      <h1>My Page</h1>
+      <p>This is my page.</p>
       <NavBar />
     </div>
   );
-};
-
+}
