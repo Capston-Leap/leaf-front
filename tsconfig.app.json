@@ -27,7 +27,7 @@
       "@pages/*": ["pages/*"],
       "@shared/*": ["shared/*"],
       "@icon/*": ["shared/assets/icon/*"],
-      "@image/*": ["shared/assets/image/*"],
+      "@img/*": ["shared/assets/img/*"],
       "@home/*": ["pages/home/*"],
       "@mission/*": ["pages/mission/*"],
       "@onboarding/*": ["pages/onboarding/*"],
