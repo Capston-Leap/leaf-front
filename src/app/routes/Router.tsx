@@ -5,7 +5,7 @@ import { HomePage } from "@pages/home";
 import { OnboardingPage } from "@pages/onboarding";
 import { CommunityPage } from "@pages/community";
 import { MyPage } from "@pages/my";
-import { MissionPage } from "@pages/mission";
+import { MissionCompletePage, MissionPage, MissionRecordWritePage } from "@pages/mission";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +27,14 @@ export const router = createBrowserRouter([
       {
         path: '/mission',
         element: <MissionPage />,
+      },
+      {
+        path: '/mission/complete',
+        element: <MissionCompletePage />,
+      },
+      {
+        path: '/mission/record',
+        element: <MissionRecordWritePage />,
       },
       {
         path: '/community',
