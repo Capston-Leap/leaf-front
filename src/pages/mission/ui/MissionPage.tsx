@@ -18,4 +18,5 @@ const MissionContainer = styled.div`
   flex-direction: column;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.gray100};
+  overflow-y: auto;
 `;
