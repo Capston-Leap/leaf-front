@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import slime2 from '@img/slime2.png';
 import { onGoingMission } from "@shared/apis/mocks/mission.ts";
 import MissionCard from "@mission/components/MissionCard.tsx";
 
