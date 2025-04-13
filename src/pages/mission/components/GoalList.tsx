@@ -63,7 +63,7 @@ const GoalList = ({ enabled, init, currentAreaType }: GoalListProps) => {
   return (
     <GoalListContainer>
       {goalList.map((goal) => {
-        const isCompleted = true;
+        const isCompleted = false;
         const isCurrent = currentAreaType === goal.type;
 
         return (
