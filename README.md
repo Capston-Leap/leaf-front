@@ -1,8 +1,7 @@
-# React Project Template Repository
-리액트 프로젝트 초기 세팅 시간 단축을 위한 템플릿 프로젝트
+# Leap Front Repository
 
 ## Stack
-- React, Vitem TypeScript + SWC
+- React, Vite, TypeScript + SWC
 - TanstackQuery, Zustand, Styled-components
 
 ## Layer
