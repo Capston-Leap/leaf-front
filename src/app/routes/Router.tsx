@@ -5,7 +5,13 @@ import { HomePage } from "@pages/home";
 import { OnboardingPage } from "@pages/onboarding";
 import { CommunityPage } from "@pages/community";
 import { MyPage } from "@pages/my";
-import { MissionCompletePage, MissionPage, MissionRecordWritePage } from "@pages/mission";
+import {
+  GoalSelectConfirmPage,
+  GoalSelectPage,
+  MissionCompletePage,
+  MissionPage,
+  MissionRecordWritePage,
+} from "@pages/mission";
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +41,14 @@ export const router = createBrowserRouter([
       {
         path: '/mission/record',
         element: <MissionRecordWritePage />,
+      },
+      {
+        path: '/goal',
+        element: <GoalSelectPage />,
+      },
+      {
+        path: '/goal/confirm',
+        element: <GoalSelectConfirmPage />,
       },
       {
         path: '/community',
