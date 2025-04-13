@@ -31,13 +31,9 @@ const MissionTabs = () => {
 export default MissionTabs;
 
 const TabContainer = styled.div`
-  position: sticky;
   display: flex;
   flex-direction: column;
-
-  /*overflow-y: hidden;
-  width: 100%;
-  height: 100%;*/
+  overflow-y: hidden;
 `;
 
 const Tab = styled.div<{ $isTab: boolean }>`
@@ -72,5 +68,5 @@ const TabIndicator = styled.div`
 
 const TabBox = styled.div`
   padding: 24px 16px 0 16px;
-  overflow-y: scroll;
+  overflow-y: auto;
 `;

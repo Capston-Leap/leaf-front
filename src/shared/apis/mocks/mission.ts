@@ -24,6 +24,31 @@ export const onGoingMission = [
     missionName: '3일 동안의 식단 작성하기',
     areaName: '일상생활기술',
   },
+  {
+    id: 5,
+    missionName: '3일 동안의 식단 작성하기',
+    areaName: '일상생활기술',
+  },
+  {
+    id: 6,
+    missionName: '3일 동안의 식단 작성하기',
+    areaName: '일상생활기술',
+  },
+  {
+    id: 7,
+    missionName: '3일 동안의 식단 작성하기',
+    areaName: '일상생활기술',
+  },
+  {
+    id: 8,
+    missionName: '3일 동안의 식단 작성하기',
+    areaName: '일상생활기술',
+  },
+  {
+    id: 9,
+    missionName: '3일 동안의 식단 작성하기',
+    areaName: '일상생활기술',
+  },
 ];
 
 export interface GetAreaHomeRes {

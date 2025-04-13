@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import GuideModal from "@mission/components/GuideModal.tsx";
+import { useHandleModal } from "@mission/feature/custom/useHandleModal.ts";
 
 interface MissionProps {
   id: number;
@@ -11,11 +12,8 @@ interface MissionProps {
 
 const MissionCard = ({ id, missionType, missionName }: MissionProps) => {
   /*const navigate = useNavigate();*/
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const [openBottomSheet, setOpenBottomSheet] = useState(false);
+  const { open, handleOpen } = useHandleModal()
+  console.log(open);
 
   /*const label = isComplete ? '완료' : '완료하기';*/
 
@@ -23,20 +21,9 @@ const MissionCard = ({ id, missionType, missionName }: MissionProps) => {
     navigate(`${navigations.MISSION_COMPLETE_DETAIL}/${id}`, { state: { missionName } });
   };*/
 
-  // 버튼 클릭: Bottom Sheet 열기
-  const handleNavigateWritePage = (e: React.MouseEvent) => {
-    e.stopPropagation(); // 부모 클릭 이벤트 중단
-    setOpenBottomSheet(true);
-  };
-
-  // Bottom Sheet 닫기
-  const handleCloseBottomSheet = () => {
-    setOpenBottomSheet(false);
-  };
   return (
     <>
-      <MissionContainer onClick={() => {/*isComplete ? handleNavigateDetailPage : handleOpen*/}}>
-        {/*{open && <GuideModal handleClose={handleClose} mission={mission!!} />}*/}
+      <MissionContainer onClick={handleOpen}>
         <MissionType>{missionType}</MissionType>
         <MissionTitle>{missionName}</MissionTitle>
         {/*<ButtonContainer>
@@ -44,11 +31,7 @@ const MissionCard = ({ id, missionType, missionName }: MissionProps) => {
         </ButtonContainer>*/}
       </MissionContainer>
 
-      {/*<CompleteBottomSheet
-        isOpen={openBottomSheet}
-        missionId={id}
-        onClose={handleCloseBottomSheet}
-      />*/}
+      {open && <GuideModal handleClose={handleOpen} />}
     </>
   );
 };
@@ -79,9 +62,9 @@ const MissionTitle = styled.div`
   color: ${({ theme }) => theme.colors.gray900};
 `;
 
-const ButtonContainer = styled.div`
+/*const ButtonContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: flex-end;
   align-content: flex-end;
-`;
+`;*/
