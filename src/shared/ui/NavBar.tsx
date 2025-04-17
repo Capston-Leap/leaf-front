@@ -54,7 +54,7 @@ function NavBar() {
           <PolicyIcon
             color={activeIndex === ActiveIndex.COMMUNITY ? theme.colors.primary : theme.colors.gray400}
           />
-          지원제도
+          커뮤니티
         </MenuBtn>
         <MenuBtn
           $active={activeIndex === ActiveIndex.MY}
@@ -74,11 +74,18 @@ export default NavBar;
 
 const Wrapper = styled.nav`
   position: fixed;
-  bottom: 10px;
-  width: 100vw;
+  bottom: 0;
+
+  width: 100%;
   max-width: 480px;
-  padding: 0 48px 15px 48px;
+
+  left: 50%;
+  transform: translateX(-50%);
+  
+  padding-bottom: 15px;
+  z-index: 1000;
 `;
+
 const Container = styled.div`
   width: 100%;
   height: 68px;
