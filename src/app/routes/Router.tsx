@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router';
 
 import { RootLayout } from '@app/layout';
 import { HomePage } from "@pages/home";
-import { LoginPage, OnboardingPage, SignupPage } from "@pages/onboarding";
+import { LoginPage, InitPage, SignupPage, OnboardingPage } from "@pages/onboarding";
 import { CommunityPage } from "@pages/community";
 import { MyPage } from "@pages/my";
 import {
@@ -20,7 +20,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <OnboardingPage />,
+        element: <InitPage />,
       },
       {
         path: '/login',
@@ -31,12 +31,16 @@ export const router = createBrowserRouter([
         element: <SignupPage />,
       },
       {
+        path: '/onboarding',
+        element: <OnboardingPage />,
+      },
+      {
         path: '/home',
         element: <HomePage />,
       },
       {
         path: '/onboarding',
-        element: <OnboardingPage />,
+        element: <InitPage />,
       },
       {
         path: '/mission',
