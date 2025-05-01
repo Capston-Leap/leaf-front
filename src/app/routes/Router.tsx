@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router';
 
 import { RootLayout } from '@app/layout';
 import { HomePage } from "@pages/home";
-import { OnboardingPage } from "@pages/onboarding";
+import { LoginPage, OnboardingPage, SignupPage } from "@pages/onboarding";
 import { CommunityPage } from "@pages/community";
 import { MyPage } from "@pages/my";
 import {
@@ -21,6 +21,14 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <OnboardingPage />,
+      },
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+      {
+        path: '/signup',
+        element: <SignupPage />,
       },
       {
         path: '/home',
