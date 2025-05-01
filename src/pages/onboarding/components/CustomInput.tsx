@@ -35,6 +35,7 @@ const Input = styled.input`
   border: 1px solid ${({ theme }) => theme.colors.primary};
   padding: 15px 14px;
   background-color: #F7F3F3;
+  font: ${({ theme }) => theme.fonts.body_m_14px};
   outline: none;
   color: black;
 `;
