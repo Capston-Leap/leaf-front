@@ -3,16 +3,17 @@ import styled from "styled-components";
 interface CustomInputProps {
   label: string;
   type: string;
-  name: string;
+  checkbox?: boolean;
   placeholder: string;
   required?: boolean;
 }
 
-const CustomInput = ({ label, type, required, placeholder }: CustomInputProps) => {
+const CustomInput = ({ label, type, required, placeholder, checkbox }: CustomInputProps) => {
   return (
     <CustomInputContainer>
       <Label htmlFor={type}>{label}</Label>
       <Input type={type} name={type} placeholder={placeholder} required={required} />
+      {checkbox ? <CheckButton $isValid={true} onClick={() => null}>중복확인</CheckButton> : null}
     </CustomInputContainer>
   )
 }
@@ -39,3 +40,14 @@ const Input = styled.input`
   outline: none;
   color: black;
 `;
+
+const CheckButton = styled.button<{ $isValid: boolean }>`
+  margin-left: auto;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 34px;
+  color: white;
+  font: ${({ theme }) => theme.fonts.body_m_14px};
+  background-color: ${({ $isValid, theme }) =>
+    $isValid ? theme.colors.primary : theme.colors.gray300};
+`
