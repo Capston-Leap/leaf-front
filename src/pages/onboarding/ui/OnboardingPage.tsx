@@ -1,72 +1,46 @@
-import ImgLogo from "@img/img-logo.png";
+import Header from "@onboarding/components/Header.tsx";
+import { useState } from "react";
+import FirstStep from "@onboarding/components/FirstStep.tsx";
+import SecondStep from "@onboarding/components/SecondStep.tsx";
+import ThirdStep from "@onboarding/components/ThirdStep.tsx";
+import ForthStep from "@onboarding/components/ForthStep.tsx";
 import styled from "styled-components";
-import CustomButton from "@shared/ui/CustomButton.tsx";
-import IcLoginBackground from "@icon/ic-login-background.svg";
 import { useNavigate } from "react-router-dom";
 
 export const OnboardingPage = () => {
   const navigate = useNavigate();
+  const [step, setStep] = useState(1);
 
-  const handleLogin = () => {
-    navigate('/login');
-  };
+  const handleNext = () => {
+    if (step < 4) {
+      setStep(step + 1);
+    }
+  }
 
-  const handleSignUp = () => {
-    navigate('/signup');
-  };
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    } else {
+      navigate(-1);
+    }
+  }
 
   return (
-    <OnboardingContainer>
-      <img src={ImgLogo} alt="" />
-      <p>자립을 향한 한 걸음, 함께 뛰는 친구</p>
-      <BottomContainer>
-        <CustomButton label="로그인" isValid={true} onClick={handleLogin} />
-        <p onClick={handleSignUp}>10초만에 회원가입</p>
-      </BottomContainer>
-      <Background src={IcLoginBackground} />
-    </OnboardingContainer>
-  );
+    <OnboardingPageContainer $step={step}>
+      <Header step={step} handleBack={handleBack} />
+      {step == 1 && <FirstStep handleNext={handleNext} />}
+      {step == 2 && <SecondStep handleNext={handleNext} />}
+      {step == 3 && <ThirdStep handleNext={handleNext} />}
+      {step == 4 && <ForthStep />}
+    </OnboardingPageContainer>
+  )
 };
 
-const OnboardingContainer = styled.div`
-  position: relative;
+const OnboardingPageContainer = styled.div<{$step: number}>`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  padding: 0 16px 16px 16px;
+  background-color: ${({ theme, $step }) => $step === 4 ? theme.colors.gray100 : 'white'};
   height: 100%;
-  background-color: white;
   overflow-y: auto;
-  overflow-x: hidden;
-
-  img:first-child {
-    margin: 30% 15% 0 15%;
-  }
-
-  p {
-    margin-top: 10px;
-    text-align: center;
-    font: ${({ theme }) => theme.fonts.body_m_18px};
-  }
-
-  p:last-child {
-    font: ${({ theme }) => theme.fonts.body_m_12px};
-  }
-`;
-
-const BottomContainer = styled.div`
-  position: absolute;
-  padding: 0 16px;
-  bottom: 10%;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin-top: auto;
-`;
-
-const Background = styled.img`
-  margin-top: 10%;
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  pointer-events: none;
 `;
