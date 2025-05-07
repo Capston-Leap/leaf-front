@@ -14,6 +14,7 @@ import {
 } from "@pages/mission";
 import ChatbotPage from "@chat/ui/ChatbotPage.tsx";
 import SupportPage from "@support/ui/SupportPage.tsx";
+import { DiaryPage } from "@pages/diary";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +80,10 @@ export const router = createBrowserRouter([
       {
         path: '/support',
         element: <SupportPage />,
+      },
+      {
+        path: '/diary',
+        element: <DiaryPage />,
       },
     ],
   },
