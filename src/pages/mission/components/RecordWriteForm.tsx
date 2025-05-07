@@ -99,14 +99,8 @@ const RecordWriteForm = () => {
             register={register}
             error={errors.feeling?.message}
           />
-          {/*<CommentContainer>
-            <Comment
-              content={`수행일지를 작성하면\n버디가 코멘트를 달아드려요!`}
-              completed={false}
-            />
-          </CommentContainer>*/}
           <ButtonContainer>
-            <CustomButton onClick={() => navigate('/mission/complete')} label='완료' isValid={isValid} />
+            <CustomButton onClick={() => navigate(-1)} label='완료' isValid={isValid} />
           </ButtonContainer>
         </InputContainer>
       </form>
@@ -138,10 +132,6 @@ const InputContainer = styled.div`
   flex-direction: column;
   gap: 17px;
   margin-bottom: 32px;
-`;
-
-const CommentContainer = styled.div`
-  margin-top: 46px;
 `;
 
 const ButtonContainer = styled.div`
