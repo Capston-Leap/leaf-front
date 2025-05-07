@@ -49,6 +49,10 @@ export default defineConfig({
         find: '@my',
         replacement: path.resolve(__dirname, 'src/pages/my'),
       },
+      {
+        find: '@chat',
+        replacement: path.resolve(__dirname, 'src/pages/chat'),
+      },
     ],
   },
 });

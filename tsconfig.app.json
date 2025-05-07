@@ -32,7 +32,8 @@
       "@mission/*": ["pages/mission/*"],
       "@onboarding/*": ["pages/onboarding/*"],
       "@my/*": ["pages/my/*"],
-      "@community/*": ["pages/community/*"]
+      "@community/*": ["pages/community/*"],
+      "@chat/*": ["pages/chat/*"]
     }
   },
   "include": ["src"]
