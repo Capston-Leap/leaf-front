@@ -35,6 +35,7 @@
       "@community/*": ["pages/community/*"],
       "@chat/*": ["pages/chat/*"],
       "@support/*": ["pages/support/*"],
+      "@diary/*": ["pages/diary/*"]
     }
   },
   "include": ["src"]

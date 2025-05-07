@@ -57,6 +57,10 @@ export default defineConfig({
         find: '@support',
         replacement: path.resolve(__dirname, 'src/pages/support'),
       },
+      {
+        find: '@diary',
+        replacement: path.resolve(__dirname, 'src/pages/diary'),
+      },
     ],
   },
 });
