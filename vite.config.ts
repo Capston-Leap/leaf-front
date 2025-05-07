@@ -53,6 +53,10 @@ export default defineConfig({
         find: '@chat',
         replacement: path.resolve(__dirname, 'src/pages/chat'),
       },
+      {
+        find: '@support',
+        replacement: path.resolve(__dirname, 'src/pages/support'),
+      },
     ],
   },
 });

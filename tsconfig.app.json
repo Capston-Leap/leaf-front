@@ -33,7 +33,8 @@
       "@onboarding/*": ["pages/onboarding/*"],
       "@my/*": ["pages/my/*"],
       "@community/*": ["pages/community/*"],
-      "@chat/*": ["pages/chat/*"]
+      "@chat/*": ["pages/chat/*"],
+      "@support/*": ["pages/support/*"],
     }
   },
   "include": ["src"]
