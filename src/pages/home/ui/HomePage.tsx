@@ -23,7 +23,7 @@ export function HomePage() {
   ];
 
   const navigateChatbot = () => {
-    navigate('chatbot');
+    navigate('/chat');
   };
 
   // 문장 변경 함수
