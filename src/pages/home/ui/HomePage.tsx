@@ -60,7 +60,7 @@ export function HomePage() {
           </ImgContainer>
           <button className="name-wrapper">리피</button>
         </CharacterSection>
-        <MissionContainer>
+        <MissionContainer onClick={() => navigate('/support')}>
           {/* 지원제도 카드 */}
           <SupportCard supportType="경제" supportTitle="청년 도약 계좌" supportSubTitle="만 19세~34세 이하" link="" />
         </MissionContainer>
