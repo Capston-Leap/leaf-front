@@ -12,6 +12,7 @@ import {
   MissionPage,
   MissionRecordWritePage,
 } from "@pages/mission";
+import ChatbotPage from "@chat/ui/ChatbotPage.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ export const router = createBrowserRouter([
       {
         path: '/my',
         element: <MyPage />,
+      },
+      {
+        path: '/chat',
+        element: <ChatbotPage />,
       },
     ],
   },
