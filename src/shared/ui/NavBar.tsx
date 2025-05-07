@@ -54,7 +54,7 @@ function NavBar() {
           <PolicyIcon
             color={activeIndex === ActiveIndex.COMMUNITY ? theme.colors.primary : theme.colors.gray400}
           />
-          지원제도
+          커뮤니티
         </MenuBtn>
         <MenuBtn
           $active={activeIndex === ActiveIndex.MY}
