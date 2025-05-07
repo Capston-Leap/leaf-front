@@ -13,6 +13,7 @@ import {
   MissionRecordWritePage,
 } from "@pages/mission";
 import ChatbotPage from "@chat/ui/ChatbotPage.tsx";
+import SupportPage from "@support/ui/SupportPage.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -74,6 +75,10 @@ export const router = createBrowserRouter([
       {
         path: '/chat',
         element: <ChatbotPage />,
+      },
+      {
+        path: '/support',
+        element: <SupportPage />,
       },
     ],
   },
