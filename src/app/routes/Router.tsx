@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router';
 
 import { RootLayout } from '@app/layout';
 import { HomePage } from "@pages/home";
-import { OnboardingPage } from "@pages/onboarding";
+import { LoginPage, InitPage, SignupPage, OnboardingPage } from "@pages/onboarding";
 import { CommunityPage } from "@pages/community";
 import { MyPage } from "@pages/my";
 import {
@@ -12,6 +12,9 @@ import {
   MissionPage,
   MissionRecordWritePage,
 } from "@pages/mission";
+import ChatbotPage from "@chat/ui/ChatbotPage.tsx";
+import SupportPage from "@support/ui/SupportPage.tsx";
+import { DiaryDetailPage, DiaryPage, DiaryWritePage } from "@pages/diary";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +23,18 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
+        element: <InitPage />,
+      },
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+      {
+        path: '/signup',
+        element: <SignupPage />,
+      },
+      {
+        path: '/onboarding',
         element: <OnboardingPage />,
       },
       {
@@ -28,7 +43,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/onboarding',
-        element: <OnboardingPage />,
+        element: <InitPage />,
       },
       {
         path: '/mission',
@@ -57,6 +72,26 @@ export const router = createBrowserRouter([
       {
         path: '/my',
         element: <MyPage />,
+      },
+      {
+        path: '/chat',
+        element: <ChatbotPage />,
+      },
+      {
+        path: '/support',
+        element: <SupportPage />,
+      },
+      {
+        path: '/diary',
+        element: <DiaryPage />,
+      },
+      {
+        path: '/diary/write',
+        element: <DiaryWritePage />,
+      },
+      {
+        path: '/diary/:id',
+        element: <DiaryDetailPage />,
       },
     ],
   },

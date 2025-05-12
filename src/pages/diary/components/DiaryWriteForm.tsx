@@ -4,8 +4,6 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { InferType } from 'yup';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { MissionRecord } from '../../../@type/mission.ts';
 import CustomButton from "@shared/ui/CustomButton.tsx";
 import RecordInput from "@mission/components/RecordInput.tsx";
 
@@ -22,7 +20,7 @@ const schema = yup.object().shape({
 
 type FormValues = InferType<typeof schema>;
 
-const RecordWriteForm = () => {
+const DiaryWriteForm = () => {
   const navigate = useNavigate();
   const { missionId } = useParams<{ missionId: string }>();
   /*const {
@@ -81,26 +79,31 @@ const RecordWriteForm = () => {
 
   return (
     <InputFormWrapper>
-      <MissionTitle>{'3일 동안의 식단 작성하기'}</MissionTitle>
       <form
         onSubmit={() => console.log('제출완료')}
         style={{ height: '100%', display: 'flex', flexDirection: 'column', marginTop: '30px' }}
       >
         <InputContainer>
           <RecordInput
-            title='어떤 미션을 수행했나요?'
+            title='오늘 어떤 하루를 보냈나요?'
             name='mission'
             register={register}
             error={errors.mission?.message}
           />
           <RecordInput
-            title='수행 후 어떤 기분이 들었나요?'
+            title='기억에 남는 일이 있었나요??'
             name='feeling'
             register={register}
             error={errors.feeling?.message}
           />
+          {/*<CommentContainer>
+            <Comment
+              content={`수행일지를 작성하면\n버디가 코멘트를 달아드려요!`}
+              completed={false}
+            />
+          </CommentContainer>*/}
           <ButtonContainer>
-            <CustomButton onClick={() => navigate(-1)} label='완료' isValid={isValid} />
+            <CustomButton onClick={() => navigate('/mission/complete')} label='완료' isValid={isValid} />
           </ButtonContainer>
         </InputContainer>
       </form>
@@ -108,20 +111,13 @@ const RecordWriteForm = () => {
   );
 };
 
-export default RecordWriteForm;
+export default DiaryWriteForm;
 
 const InputFormWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0 16px;
   overflow-y: scroll;
-`;
-
-const MissionTitle = styled.span`
-  margin-top: 6px;
-  margin-left: 8px;
-  font: ${({ theme }) => theme.fonts.heading_sb_22px};
-  color: ${({ theme }) => theme.colors.gray900};
 `;
 
 const InputContainer = styled.div`

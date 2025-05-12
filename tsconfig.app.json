@@ -32,7 +32,10 @@
       "@mission/*": ["pages/mission/*"],
       "@onboarding/*": ["pages/onboarding/*"],
       "@my/*": ["pages/my/*"],
-      "@community/*": ["pages/community/*"]
+      "@community/*": ["pages/community/*"],
+      "@chat/*": ["pages/chat/*"],
+      "@support/*": ["pages/support/*"],
+      "@diary/*": ["pages/diary/*"]
     }
   },
   "include": ["src"]

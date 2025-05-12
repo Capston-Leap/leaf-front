@@ -15,6 +15,7 @@ export const fonts: FontsTypes = {
   heading_sb_20px: createFontStyle('Pretendard', 600, 20, 140),
   heading_b_30px: createFontStyle('Pretendard', 700, 30, 140),
   body_sb_18px: createFontStyle('Pretendard', 600, 18, 140),
+  body_bold_16px: createFontStyle('Pretendard', 700, 16, 140),
   body_m_18px: createFontStyle('Pretendard', 500, 18, 140),
   body_m_16px: createFontStyle('Pretendard', 500, 16, 140),
   body_m_14px: createFontStyle('Pretendard', 500, 14, 140),
