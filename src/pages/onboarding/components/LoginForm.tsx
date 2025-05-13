@@ -1,19 +1,37 @@
 import CustomInput from "@onboarding/components/CustomInput.tsx";
 import styled from "styled-components";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginSchema, LoginSchemaType } from "@onboarding/feature/schema/login.ts";
+import { useLoginUser } from "@onboarding/feature/hooks/mutate/useLoginUser.ts";
+import { LoginRequest } from "@shared/types/request/user.ts";
 
 const LoginForm = () => {
+  const { register, getValues, setValue, watch, handleSubmit, formState: { errors } } = useForm<LoginSchemaType>({
+    resolver: zodResolver(LoginSchema),
+    mode: 'onChange',
+  })
+  const { mutate } = useLoginUser();
+
   return (
-    <FormContainer>
-      <CustomInput label="아이디" type="text" placeholder="아이디를 입력해 주세요" required={true} />
-      <CustomInput label="비밀번호" type="password" placeholder="비밀번호를 입력해 주세요" required={true} />
-      <Button $isValid={true} onClick={() => null} type="submit">로그인</Button>
+    <FormContainer onSubmit={handleSubmit((data: LoginSchemaType) => {
+      const { loginId, password } = data;
+      const loginData: LoginRequest = {
+        loginId,
+        password,
+      }
+      mutate(loginData);
+    })}>
+      <CustomInput<LoginSchemaType> label="아이디" type="text" placeholder="아이디를 입력해 주세요" required={true} register={register} name="loginId"  />
+      <CustomInput<LoginSchemaType> label="비밀번호" type="password" placeholder="비밀번호를 입력해 주세요" required={true} register={register} name="password" />
+      <Button $isValid={true}>로그인</Button>
     </FormContainer>
   );
 };
 
 export default LoginForm;
 
-const FormContainer = styled.div`
+const FormContainer = styled.form`
   display: flex;
   flex-direction: column;
   margin-top: 20%;
