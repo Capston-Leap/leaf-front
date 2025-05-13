@@ -1,18 +1,26 @@
+import { Path, UseFormGetValues, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import styled from "styled-components";
+import { RegisterSchemaType } from "@onboarding/feature/schema/register.ts";
+import { LoginSchemaType } from "@onboarding/feature/schema/login.ts";
 
-interface CustomInputProps {
+interface CustomInputProps<T extends RegisterSchemaType | LoginSchemaType> {
   label: string;
   type: string;
   checkbox?: boolean;
   placeholder: string;
   required?: boolean;
+  name: Path<T>;
+  register: UseFormRegister<T>;
+  watch?: UseFormWatch<T>;
+  setValue?: UseFormSetValue<T>;
+  getValues?: UseFormGetValues<T>;
 }
 
-const CustomInput = ({ label, type, required, placeholder, checkbox }: CustomInputProps) => {
+const CustomInput = <T extends RegisterSchemaType | LoginSchemaType>({ label, type, required, placeholder, checkbox, name, register, watch, setValue, getValues }: CustomInputProps<T>) => {
   return (
     <CustomInputContainer>
       <Label htmlFor={type}>{label}</Label>
-      <Input type={type} name={type} placeholder={placeholder} required={required} />
+      <Input type={type} placeholder={placeholder} required={required} {...register(name)} />
       {checkbox ? <CheckButton $isValid={true} onClick={() => null}>중복확인</CheckButton> : null}
     </CustomInputContainer>
   )
