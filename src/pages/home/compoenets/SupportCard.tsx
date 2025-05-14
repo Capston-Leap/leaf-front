@@ -45,6 +45,7 @@ const SupportCardContainer = styled.div`
 `;
 
 const TextContainer = styled.div`
+  width: 70%;
   display: flex;
   flex-direction: column;
 `;
@@ -53,6 +54,10 @@ const SupportTextSmall = styled.div`
   font: ${({ theme }) => theme.fonts.body_m_14px};
   color: ${({ theme }) => theme.colors.gray500};
   font-weight: bold;
+  
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SupportTitle = styled.div`
