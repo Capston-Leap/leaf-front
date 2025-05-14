@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import CardButton from "@home/compoenets/CardButton.tsx";
+import { Support } from "@home/feature/type/support.ts";
 
 interface SupportProgramProps {
   supportType: string;
@@ -9,10 +10,12 @@ interface SupportProgramProps {
 }
 
 const SupportCard = ({ supportType, supportTitle, supportSubTitle, link }: SupportProgramProps) => {
+
+  const type = Support[supportType] ? Support[supportType] : "기타";
   return (
     <MissionContainer>
       <TextContainer>
-        <SupportTextSmall>{supportType}</SupportTextSmall>
+        <SupportTextSmall>{type}</SupportTextSmall>
         <SupportTitle>{supportTitle}</SupportTitle>
         <SupportTextSmall>{supportSubTitle}</SupportTextSmall>
       </TextContainer>
@@ -47,17 +50,27 @@ const MissionContainer = styled.div`
 const TextContainer = styled.div`
   display: flex;
   flex-direction: column;
+  
+  width: 70%;
 `;
 
 const SupportTextSmall = styled.div`
   font: ${({ theme }) => theme.fonts.body_m_14px};
   color: ${({ theme }) => theme.colors.gray500};
   font-weight: bold;
+  
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SupportTitle = styled.div`
   font: ${({ theme }) => theme.fonts.body_sb_18px};
   color: ${({ theme }) => theme.colors.gray900};
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const ButtonContainer = styled.div`
