@@ -1,78 +1,143 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
-import NavBar from "@shared/ui/NavBar";
+import NavBar from "@shared/ui/NavBar.tsx";
 import ArrowLeftIcon from "../../../shared/assets/icon/ic-arrow-left-white.svg";
+import TrashIcon from "../../../shared/assets/icon/trash-icon";
+import { logoutUser, deleteUser, fetchUserProfile } from "../../../api/user";
+import { fetchMyPosts, deletePost, updatePost } from "../../../api/community";
+
+import { useNavigate } from "react-router-dom";
+
+interface Post {
+  postId: number;
+  nickname: string;
+  createdAt: string;
+  title: string;
+  content: string;
+  commentCount: number;
+}
 
 export const MyPage = () => {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"default" | "myPosts">("default");
-  const [activeTab, setActiveTab] = useState<"자유" | "고민" | "정보">("자유");
+  const [viewMode, setViewMode] = useState("default");
+  const [activeTab, setActiveTab] = useState("자유");
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [showPostDeleteModal, setShowPostDeleteModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [postList, setPostList] = useState<Post[]>([]);
 
-  const handleLogout = () => {
-    setIsModalOpen(true);
+  const navigate = useNavigate();
+
+  const handleLogout = () => setIsModalOpen(true);
+  const handleCancel = () => setIsModalOpen(false);
+
+  const handleConfirm = async () => {
+    try {
+      await logoutUser();
+      localStorage.removeItem("token");
+      alert("로그아웃되었습니다.");
+      navigate("/login");
+    } catch (e) {
+      console.error(e);
+      alert("로그아웃에 실패했습니다.");
+    } finally {
+      setIsModalOpen(false);
+    }
   };
 
-  const handleConfirm = () => {
-    console.log("로그아웃되었습니다!");
-    setIsModalOpen(false);
+  const handleDelete = () => setIsDeleteModalOpen(true);
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteUser();
+      localStorage.removeItem("token");
+      alert("회원탈퇴가 완료되었습니다.");
+      navigate("/signup");
+    } catch (e) {
+      console.error(e);
+      alert("회원탈퇴에 실패했습니다.");
+    } finally {
+      setIsDeleteModalOpen(false);
+    }
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
+  const handleDeleteCancel = () => setIsDeleteModalOpen(false);
 
-  const handleDelete = () => {
-    setIsDeleteModalOpen(true);
-  };
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        const userProfile = await fetchUserProfile();
+        setCurrentUser({
+          name: userProfile.name,
+          email: userProfile.loginId,
+          missionInProgress: userProfile.ongoingMissionCount,
+          missionCompleted: userProfile.completedMissionCount,
+        });
+      } catch (e) {
+        console.error("프로필 조회 실패", e);
+      }
+    };
+    loadUserProfile();
+  }, []);
 
-  const handleDeleteConfirm = () => {
-    console.log("회원탈퇴 진행");
-    setIsDeleteModalOpen(false);
-  };
-
-  const handleDeleteCancel = () => {
-    setIsDeleteModalOpen(false);
-  };
+  useEffect(() => {
+    const loadMyPosts = async () => {
+      if (!currentUser) return;
+      try {
+        const communityId = 1;
+        const data = await fetchMyPosts(communityId, 1, 10);
+        setPostList(data.content);
+      } catch (e) {
+        console.error("게시글 목록 조회 실패", e);
+      }
+    };
+    loadMyPosts();
+  }, [currentUser]);
 
   return (
     <PageWrapper>
-      {viewMode === "default" && (
+      {currentUser && viewMode === "default" && (
         <>
           <UserInfo>
-            <Name>단풍님</Name>
-            <Email>fall@naver.com</Email>
+            <Name>{currentUser?.name}</Name>
+            <Email>{currentUser?.email}</Email>
           </UserInfo>
 
           <StatsBox>
             <StatItem>
               <Label>진행중 미션</Label>
-              <Number>4</Number>
+              <Number>{currentUser.missionInProgress}</Number>
             </StatItem>
             <StatItem>
               <Label>완료한 미션</Label>
-              <Number>12</Number>
+              <Number>{currentUser.missionCompleted}</Number>
             </StatItem>
             <StatItem onClick={() => setViewMode("myPosts")}>
               <Label>나의 게시글</Label>
-              <Number>12</Number>
+              <Number>{postList.length}</Number>
             </StatItem>
           </StatsBox>
-
           <ActionList>
-            <ActionItem onClick={handleLogout}>로그아웃</ActionItem>
-            <ActionItem onClick={handleDelete}>회원탈퇴</ActionItem>
+            <ActionItem onClick={handleLogout}>
+              <ActionItemText>로그아웃</ActionItemText>
+            </ActionItem>
+            <ActionItem onClick={handleDelete}>
+              <ActionItemText>회원탈퇴</ActionItemText>
+            </ActionItem>
           </ActionList>
         </>
       )}
 
-      {viewMode === "myPosts" && (
+      {currentUser && viewMode === "myPosts" && (
         <>
           <Header>
             <BackBtn onClick={() => setViewMode("default")}>
               <img src={ArrowLeftIcon} alt="뒤로가기" width="24" height="24" />
             </BackBtn>
-            <h2>나의 게시글</h2>
+            <HeaderTitle>나의 게시글</HeaderTitle>
           </Header>
 
           <TabList>
@@ -81,53 +146,177 @@ export const MyPage = () => {
                 key={tab}
                 $active={activeTab === tab}
                 onClick={() => setActiveTab(tab as "자유" | "고민" | "정보")}
-              >
-                {tab}
-              </Tab>
+              >{tab}</Tab>
             ))}
             <Underline style={{ transform: `translateX(${["자유", "고민", "정보"].indexOf(activeTab) * 100}%)` }} />
           </TabList>
 
           <PostList>
-            {[1, 2].map((id) => (
-              <PostCard key={id}>
+            {postList.map((post) => (
+              <PostCard
+                key={post.postId}
+                onClick={() => {
+                  setSelectedPost(post);
+                  setViewMode("postDetail");
+                }}
+              >
                 <CardHeader>
-                  <span>리피파</span>
-                  <span>2024년 5월 17일</span>
+                  <Author>{post.nickname}</Author>
+                  <DateText>{post.createdAt}</DateText>
                 </CardHeader>
-                <CardTitle>개발 언어를 배우고 싶어요</CardTitle>
-                <CardContent>
-                  어쩌구저쩌구어쩌구저쩌구어쩌구저쩌구어쩌구
-                </CardContent>
-                <CardFooter>댓글 17개</CardFooter>
+                <CardTitle>{post.title}</CardTitle>
+                <CardContent>{post.content}</CardContent>
+                <CardFooter>댓글 {post.commentCount}개</CardFooter>
               </PostCard>
             ))}
           </PostList>
         </>
       )}
 
-      {isModalOpen && (
+      {viewMode === "postDetail" && selectedPost && (
+        <>
+          <HeaderWrapper>
+            <BackBtn onClick={() => setViewMode("myPosts")}>
+              <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
+            </BackBtn>
+            <EditButton onClick={() => {
+              setTitle(selectedPost.title);
+              setContent(selectedPost.content);
+              setViewMode('edit');
+            }}>
+              수정
+            </EditButton>
+            <TrashButton onClick={() => setShowPostDeleteModal(true)}>
+              <TrashIcon color="#111" />
+            </TrashButton>
+          </HeaderWrapper>
+
+          <PostTitle>{selectedPost.title}</PostTitle>
+          <PostSubInfo>{selectedPost.nickname} · {selectedPost.createdAt}</PostSubInfo>
+          <PostContent>{selectedPost.content}</PostContent>
+          <PostSubInfo>댓글 {selectedPost.commentCount}개</PostSubInfo>
+          <Divider />
+        </>
+      )}
+
+      {showPostDeleteModal && selectedPost && (
         <ModalOverlay>
           <ModalBox>
-            <ModalText>로그아웃 하시겠습니까?</ModalText>
+            <ModalText>게시글을 삭제하시겠습니까?</ModalText>
             <ModalButtons>
-              <ModalButton $cancel onClick={handleCancel}>아니요</ModalButton>
-              <ModalButton onClick={handleConfirm}>네</ModalButton>
+              <ModalButton $cancel onClick={() => setShowPostDeleteModal(false)}>아니요</ModalButton>
+              <ModalButton onClick={async () => {
+                try {
+                  const communityId = 1;
+                  await deletePost(communityId, selectedPost.postId);
+                  alert("게시글이 성공적으로 삭제되었습니다.");
+                  setPostList(prev => prev.filter(p => p.postId !== selectedPost.postId));
+                  setSelectedPost(null);
+                  setShowPostDeleteModal(false);
+                  setViewMode("myPosts");
+                } catch (err) {
+                  console.error("게시글 삭제 실패", err);
+                  alert("게시글 삭제에 실패했습니다.");
+                }
+              }}>네</ModalButton>
             </ModalButtons>
           </ModalBox>
+        </ModalOverlay>
+      )}
+
+      {isModalOpen && (
+        <ModalOverlay>
+          <StyledModalBox>
+            <ModalTitle>로그아웃 하시겠습니까?</ModalTitle>
+            <ModalButtonGroup>
+              <CancelButton onClick={handleCancel}>아니요</CancelButton>
+              <ConfirmButton onClick={handleConfirm}>네</ConfirmButton>
+            </ModalButtonGroup>
+          </StyledModalBox>
         </ModalOverlay>
       )}
 
       {isDeleteModalOpen && (
         <ModalOverlay>
           <ModalBox>
-            <ModalText>회원탈퇴 하시겠습니까?</ModalText>
+            <ModalTitleText>회원탈퇴 하시겠습니까?</ModalTitleText>
             <ModalButtons>
-              <ModalButton $cancel onClick={handleDeleteCancel}>아니요</ModalButton>
-              <ModalButton onClick={handleDeleteConfirm}>네</ModalButton>
+              <CancelButton onClick={handleDeleteCancel}>아니요</CancelButton>
+              <ConfirmButton onClick={handleDeleteConfirm}>네</ConfirmButton>
             </ModalButtons>
           </ModalBox>
         </ModalOverlay>
+      )}
+
+      {viewMode === 'edit' && selectedPost && (
+        <WriteContainer>
+          <EditFormWrapper>
+            <HeaderWrapper>
+              <BackBtn onClick={() => setViewMode('postDetail')}>
+                <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
+              </BackBtn>
+              <HeaderTitle>게시글 수정</HeaderTitle>
+            </HeaderWrapper>
+
+            <LabelText>제목</LabelText>
+            <Input
+              placeholder="제목을 입력하세요"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+
+            <LabelText>내용</LabelText>
+            <Textarea
+              placeholder="내용을 입력하세요"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+
+            <ButtonWrapper>
+              <SubmitButton
+                disabled={!title || !content}
+                onClick={async () => {
+                  if (!selectedPost) return;
+                  try {
+                    const communityId = 1;
+                    const res = await updatePost(
+                      communityId,
+                      selectedPost.postId,
+                      title,
+                      content
+                    );
+
+                    setSelectedPost(prev =>
+                      prev
+                        ? {
+                          ...prev,
+                          title: res.title,
+                          content: res.content,
+                        }
+                        : null
+                    );
+
+                    setPostList(prev =>
+                      prev.map(p =>
+                        p.postId === selectedPost.postId
+                          ? { ...p, title: res.title, content: res.content }
+                          : p
+                      )
+                    );
+
+                    alert("게시글이 성공적으로 수정되었습니다.");
+                    setViewMode('postDetail');
+                  } catch (err) {
+                    console.error("게시글 수정 실패", err);
+                    alert("게시글 수정 중 오류가 발생했습니다.");
+                  }
+                }}
+              >
+                수정 완료
+              </SubmitButton>
+            </ButtonWrapper>
+          </EditFormWrapper>
+        </WriteContainer>
       )}
 
       <NavBar />
@@ -136,48 +325,73 @@ export const MyPage = () => {
 };
 
 const PageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   padding: 24px 16px 80px;
-  background-color: #f7f7f7;
+  background-color:#F4F4F5;
   min-height: 100vh;
 `;
 
 const UserInfo = styled.div`
   margin-bottom: 24px;
 `;
-const Name = styled.div`
-  font-size: 18px;
-  font-weight: bold;
-`;
-const Email = styled.div`
-  font-size: 14px;
-  color: gray;
+const Name = styled.h1`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #18181B;
 `;
 
+const Email = styled.p`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #A1A1AA;
+`;
+
+
 const StatsBox = styled.div`
+  width: 361px;
+  height: 112px;
+  background-color: #ffffff;
+  border-radius: 30px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.04);
+  margin: 8px auto 24px;
   display: flex;
-  justify-content: space-between;
-  background-color: white;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  justify-content: space-around;
+  align-items: center;
 `;
 
 const StatItem = styled.div`
-  text-align: center;
-  flex: 1;
-  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
-const Label = styled.div`
-  font-size: 14px;
-  color: #555;
+const Label = styled.span`
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #18181B;
+  line-height: 140%;
+  letter-spacing: -0.025em;
 `;
-const Number = styled.div`
-  font-size: 20px;
-  font-weight: bold;
-  color: #00c2a6;
+
+const Number = styled.span`
+  font-family: 'Pretendard', sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: #59D9CC;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  margin-top: 4px;
 `;
+
 
 const ActionList = styled.div`
   display: flex;
@@ -185,78 +399,203 @@ const ActionList = styled.div`
   gap: 12px;
 `;
 
-const ActionItem = styled.div`
-  background-color: white;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+const ActionItem = styled.button`
+  width: 361px;
+  height: 69px;
+  border: none;
+  border-radius: 30px;
+  background: #FFFFFF;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.04);
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
   font-size: 16px;
+  color: #18181B;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
   cursor: pointer;
 
   &::after {
-    content: "›";
-    color: gray;
+    content: '>';
+    font-size: 18px;
+    color: #18181B;
   }
+`;
+
+const ActionItemText = styled.span`
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #18181B;
+  line-height: 140%;
+  letter-spacing: -0.025em;
 `;
 
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.3);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  z-index: 999;
+`;
+
+const StyledModalBox = styled.div`
+  width: 361px;
+  height: 230px;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.04);
+  position: relative;               
+  display: flex;
+  flex-direction: column;
+  justify-content: center;       
+  align-items: center;
+  padding-bottom: 30px;
+`;
+
+
+const ModalTitle = styled.div`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #18181B;
+  text-align: center;
+
+  margin-top: 10px;      
+  margin-bottom: 40px;   
+`;
+
+
+const ModalTitleText = styled.p`
+  font-family: 'Pretendard', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #18181B;
+  text-align: center;
+
+  margin-top: 10px;       
+  margin-bottom: 40px;    
+`;
+
+
+const ModalButtonGroup = styled.div`
+  display: flex;
+  gap: 16px;
+  position: absolute;
+  bottom: 10px;
+`;
+
+const CancelButton = styled.button`
+  width: 165px;
+  height: 60px;
+  border: none;
+  border-radius: 10px;
+  background-color: #A1A1AA;
+  color: white;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  text-align: center;
+  cursor: pointer;
+`;
+
+const ConfirmButton = styled.button`
+  width: 165px;
+  height: 60px;
+  background-color: #59D9CC;
+  border: none;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  cursor: pointer;
 `;
 
 const ModalBox = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 32px 24px;
-  width: 90%;
-  max-width: 360px;
-  text-align: center;
+  width: 361px;
+  height: 230px;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.04);
+  position: relative;               
+  display: flex;
+  flex-direction: column;
+  justify-content: center;       
+  align-items: center;
+  padding-bottom: 30px;
 `;
 
-const ModalText = styled.div`
-  font-weight: bold;
-  margin-bottom: 20px;
+const ModalText = styled.p`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #18181B;
+  text-align: center;
+  margin-bottom: 24px; 
 `;
 
 const ModalButtons = styled.div`
   display: flex;
   gap: 16px;
-  margin-top: 20px;
+  position: absolute;
+  bottom: 10px;
 `;
 
 const ModalButton = styled.button<{ $cancel?: boolean }>`
-  flex: 1;
-  padding: 12px 0;
-  border-radius: 10px;
+  width: 165px;
+  height: 60px;
   border: none;
-  font-weight: bold;
-  color: white;
-  font-size: 15px;
-  background-color: ${({ $cancel }) => ($cancel ? "#999" : "#00c2a6")};
+  border-radius: 10px;
+  padding: 0 24px;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  cursor: pointer;
+  
+  color: #ffffff;
+  background-color: ${({ $cancel }) => ($cancel ? '#A1A1AA' : '#59D9CC')};
+
+  &:hover {
+    opacity: 0.9;
+  }
 `;
 
 const Header = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: bold;
-  font-size: 18px;
-  margin-bottom: 16px;
+  justify-content: center;
+  height: 56px;
+  background-color: #F4F4F5;
 `;
 
 const BackBtn = styled.button`
+  position: absolute;
+  left: 16px;
   background: none;
   border: none;
-  cursor: pointer;
   padding: 0;
+  cursor: pointer;
 `;
 
 const TabList = styled.div`
@@ -284,7 +623,7 @@ const Underline = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
-  width: calc(100% / 3); // 탭 3개니까
+  width: calc(100% / 3);
   height: 2px;
   background-color: #111;
   transition: transform 0.3s ease;
@@ -298,39 +637,233 @@ const PostList = styled.div`
 `;
 
 const PostCard = styled.div`
-  background: white;
-  border-radius: 12px;
+  width: 361px;
+  height: 200px;
+  background-color: #FFFFFF;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
   padding: 16px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
 `;
 
 const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
-  color: #999;
-  margin-bottom: 4px;
+  align-items: center;
+  margin-bottom: 8px;
 `;
 
+const Author = styled.span`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #A1A1AA;
+`;
+
+const DateText = styled.span`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #A1A1AA;
+`;
+
+
 const CardTitle = styled.h4`
-  font-size: 15px;
-  font-weight: bold;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #18181B;
   margin-bottom: 6px;
 `;
 
+
 const CardContent = styled.p`
-  font-size: 14px;
-  color: #444;
-  line-height: 1.4;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: -0.025em;
+  color: #18181B;
+
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; 
+  -webkit-box-orient: vertical;
 `;
+
 
 const CardFooter = styled.div`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #A1A1AA;
   text-align: right;
-  font-size: 12px;
-  color: #999;
-  margin-top: 12px;
+  margin-top: auto;
 `;
 
+const HeaderWrapper = styled.div`
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+  position: relative;
+  height: 56px;
+  border-bottom: 1px solid #ccc;
+  background-color: #F4F4F5;
+`;
+
+const EditButton = styled.button`
+  position: absolute;
+  right: 52px;
+  top: 8px;
+  background: #F4F4F5;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+  cursor: pointer;
+`;
+
+const TrashButton = styled.button`
+  position: absolute;
+  right: 16px;
+  top: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+`;
+
+const PostTitle = styled.h2`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #18181B;
+  margin: 16px 0 8px 0; 
+`;
+
+const PostSubInfo = styled.div`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #A1A1AA;
+`;
+
+const PostContent = styled.p`
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 16px;
+`;
+
+const Divider = styled.hr`
+  width: 100vw;
+  height: 1px;
+  background-color: #E4E4E7;
+  border: none;
+  margin: 24px 0;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background-color: #fff;
+  outline: none;
+  margin-bottom: 16px;
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  height: 320px;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  resize: none;
+  outline: none;
+  background-color: #fff;
+  line-height: 1.5;
+  margin-top: 8px;
+`;
+
+const SubmitButton = styled.button`
+  width: 361px;
+  height: 60px;
+  background-color: #59D9CC;
+  color: #fff;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  border: none;
+  border-radius: 18px;
+
+  display: block;
+  margin: 32px auto 0 auto;
+  cursor: pointer;
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const WriteContainer = styled.div`
+  padding: 24px 16px;
+  background-color: #F4F4F5;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const LabelText = styled.label`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #18181B;
+  margin-bottom: 8px;
+  display: block;
+`;
+
+const EditFormWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+`;
+
+const HeaderTitle = styled.h2`
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
