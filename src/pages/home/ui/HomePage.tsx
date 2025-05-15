@@ -5,24 +5,25 @@ import MissionInfo from "@home/compoenets/MissionInfo.tsx";
 import ChatIcon from "@icon/ic-chat-icon.tsx";
 import PolygonSvg from "@icon/ic-polygon.svg";
 import NavBar from "@shared/ui/NavBar.tsx";
-import LeafiMan from "@img/img-leafi-3.png";
 import IcChatIntro from "@icon/ic-chat-intro.tsx";
 import SupportCard from "@home/compoenets/SupportCard.tsx";
 import { useGetHomeInfo } from "@home/feature/hooks/query/useGetHomeInfo.ts";
 import { useManageSentence } from "@home/feature/hooks/custom/useManageSentence.ts";
 import { Support } from "@home/feature/type/support.ts";
+import { useUserInfo } from "@shared/hooks/query/useUserInfo.ts";
+import { LeapyType } from "@shared/types/response/chat.ts";
 
 export function HomePage() {
-  const { data, isLoading, isError} = useGetHomeInfo()
-  const { sentenceIndex, handleNextSentence, SentenceSet } = useManageSentence()
+  const { data, isLoading, isError } = useGetHomeInfo();
+  const { data: userInfo, isLoading: isLoadingUserInfo } = useUserInfo();
+  const { sentenceIndex, handleNextSentence, SentenceSet } = useManageSentence();
   const navigate = useNavigate();
-
 
   const navigateChatbot = () => {
     navigate('/chat');
   };
 
-  if (isLoading || !data) {
+  if (isLoading || isLoadingUserInfo || !data || !userInfo) {
     return <div>Loading...</div>;
   }
 
@@ -30,7 +31,13 @@ export function HomePage() {
     return <div>Error loading data</div>;
   }
 
-  console.log(data)
+  if (userInfo && data) {
+    if (userInfo?.chatbotType === null && userInfo?.missionType === null) {
+      navigate('/onboarding');
+    } else if ((userInfo?.chatbotType !== null && userInfo?.missionType === null) || data.progress === 100) {
+      navigate('/goal');
+    }
+  }
 
   const supportType = Support[data.info.infoType] ? Support[data.info.infoType] : "기타";
 
@@ -59,13 +66,14 @@ export function HomePage() {
           </button>
           <img src={PolygonSvg} alt="" />
           <ImgContainer>
-            <img src={LeafiMan} alt="" />
+            <img src={LeapyType[userInfo?.chatbotType]} alt="" />
           </ImgContainer>
           <button className="name-wrapper">리피</button>
         </CharacterSection>
         <MissionContainer onClick={() => navigate('/support')}>
           {/* 지원제도 카드 */}
-          <SupportCard supportType={supportType} supportTitle={data.info.infoTitle} supportSubTitle={data.info.infoContent} link={data.info.infoUrl} />
+          <SupportCard supportType={supportType} supportTitle={data.info.infoTitle}
+                       supportSubTitle={data.info.infoContent} link={data.info.infoUrl} />
         </MissionContainer>
       </ContentContainer>
       <NavBar />
