@@ -6,14 +6,16 @@ import { useTokenStore } from "@shared/store/useTokenStore.ts";
 
 export const useLoginUser = () => {
   const navigate = useNavigate();
-  const { setToken } = useTokenStore()
+  const { token, setToken } = useTokenStore()
 
   const result = useMutation({
     mutationFn: (data: LoginRequest) => login(data),
     onSuccess: (data) => {
-      const token = data.token;
-      setToken(token)
-      navigate('/home')
+      const freshToken = data.token;
+      setToken(freshToken)
+      if (token) {
+        navigate('/home')
+      }
     },
   });
 

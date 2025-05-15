@@ -8,10 +8,10 @@ export const useRegisterMember = () => {
 
   const result = useMutation({
     mutationFn: (request: RegisterUserRequest) => registerUser(request),
-    onSuccess: (data) => {
+    onSuccess: () => {
       setTimeout(() => {
         navigate('/');
-      });
+      }, 1000);
     },
   });
 
