@@ -16,7 +16,7 @@ interface CustomInputProps<T extends RegisterSchemaType | LoginSchemaType> {
   getValues?: UseFormGetValues<T>;
 }
 
-const CustomInput = <T extends RegisterSchemaType | LoginSchemaType>({ label, type, required, placeholder, checkbox, name, register, watch, setValue, getValues }: CustomInputProps<T>) => {
+const CustomInput = <T extends RegisterSchemaType | LoginSchemaType>({ label, type, required, placeholder, checkbox, name, register }: CustomInputProps<T>) => {
   return (
     <CustomInputContainer>
       <Label htmlFor={type}>{label}</Label>
