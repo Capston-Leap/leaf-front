@@ -1,43 +1,20 @@
 import styled from 'styled-components';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import BackToolbar from "@shared/ui/BackToolbar.tsx";
 import CustomButton from "@shared/ui/CustomButton.tsx";
 import ConfirmContent from "@mission/components/ConfirmContent.tsx";
+import { usePatchMissionArea } from "@shared/hooks/mutate/usePatchMissionArea.ts";
+import { MissionAreaSettingRequest } from "@shared/types/request/mission.ts";
 
 export const GoalSelectConfirmPage = () => {
   const location = useLocation();
   const { image, type } = location.state.goal || {};
+  const { mutate } = usePatchMissionArea()
+  console.log(type)
+  const request: MissionAreaSettingRequest = {
+    missionType: type,
+  }
 
-  const navigate = useNavigate();
-
-  /*const [searchParams] = useSearchParams();
-  const initStatus = searchParams.get('init') === 'true';*/
-
- /* const handleNavigate = async () => {
-    console.log(initStatus);
-    //영역 생성 api 호출
-    const res = await createInitGoal(accessToken!, type);
-    console.log(res);
-    //성공 시
-    if (res && res.id) {
-      if (initStatus) {
-        //첫 영역 생성일 경우
-        navigate('/initial-setup?step=3', {
-          state: {
-            type: type,
-            id: res.id,
-          },
-        });
-      } else {
-        navigate(navigations.GOAL_PRE_CHECK, {
-          state: {
-            type: type,
-            id: res.id,
-          },
-        });
-      }
-    }
-  };*/
   return (
     <MissionCompletionContainer>
       <BackToolbar title=' ' />
@@ -45,7 +22,7 @@ export const GoalSelectConfirmPage = () => {
         <ConfirmContent goalType={type} image={image} />
       </ContentContainer>
       <ButtonContainer>
-        <CustomButton label='네' isValid={true} onClick={() => navigate('/home')} />
+        <CustomButton label='네' isValid={true} onClick={() => mutate(request)} />
       </ButtonContainer>
     </MissionCompletionContainer>
   );
