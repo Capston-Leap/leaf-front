@@ -7,7 +7,7 @@ import { useLoginUser } from "@onboarding/feature/hooks/mutate/useLoginUser.ts";
 import { LoginRequest } from "@shared/types/request/user.ts";
 
 const LoginForm = () => {
-  const { register, getValues, setValue, watch, handleSubmit, formState: { errors } } = useForm<LoginSchemaType>({
+  const { register, handleSubmit } = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
     mode: 'onChange',
   })
