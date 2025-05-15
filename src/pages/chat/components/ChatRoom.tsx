@@ -2,10 +2,26 @@ import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import ChatInput from './ChatInput.tsx';
 import { useChatStore } from "@chat/feature/store/useChatStore.ts";
+import { useGetChatHistory } from "@chat/feature/hooks/useGetChatHistory.ts";
+import { useUserInfoStore } from "@shared/store/useUserInfoStore.ts";
+import { useInView } from "react-intersection-observer";
 
 const ChatRoom = () => {
-  const { messages } = useChatStore();
+  const { data, isLoading, isError, hasNextPage, fetchNextPage } = useGetChatHistory();
+  const { userName } = useUserInfoStore();
+  const { messages, clearMessages } = useChatStore();
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    clearMessages();
+  }, []);
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, inView]);
 
   useEffect(() => {
     if (lastMessageRef.current) {
@@ -13,19 +29,43 @@ const ChatRoom = () => {
     }
   }, [messages]);
 
+  if (isLoading && !data) {
+    return <div>로딩중...</div>;
+  }
+  if (isError) {
+    return <div>에러가 발생했습니다.</div>;
+  }
+
   return (
     <ChatWrapper>
-      <ChatContainer>
-        {messages.map((msg, index) => (
-          <ChatBubble
-            key={msg.id}
-            $isUser={msg.isUser}
-            ref={index === messages.length - 1 ? lastMessageRef : null}
-          >
-            {msg.content}
-          </ChatBubble>
-        ))}
-      </ChatContainer>
+      <div style={{ overflow: 'auto', marginBottom: '100px' }}>
+        <ChatContainer>
+          {data?.pages.map((page) =>
+            page?.responseList.map((msg, index) => (
+              <ChatBubble
+                key={index}
+                $isUser={msg.sender === userName}
+              >
+                {msg.content}
+              </ChatBubble>
+            )),
+          )}
+
+          {/* ✅ 스크롤 감지는 아래로 옮김 */}
+          <div ref={ref} />
+        </ChatContainer>
+        <NewChatContainer ref={lastMessageRef}>
+          {messages.map((msg, index) => (
+            <ChatBubble
+              key={index}
+              $isUser={msg.isUser}
+              ref={index === messages.length - 1 ? lastMessageRef : null}
+            >
+              {msg.content}
+            </ChatBubble>
+          ))}
+        </NewChatContainer>
+      </div>
       <ChatInput />
     </ChatWrapper>
   );
@@ -35,7 +75,7 @@ export default ChatRoom;
 
 const ChatWrapper = styled.div`
   width: 100vw;
-  max-width: 480px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -45,8 +85,14 @@ const ChatWrapper = styled.div`
 const ChatContainer = styled.div`
   flex: 1;
   padding: 18px 0;
-  margin-bottom: 100px;
-  overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 16px;
+`;
+
+const NewChatContainer = styled.div`
+  flex: 1;
+  padding: 18px 0;
   display: flex;
   flex-direction: column;
   gap: 16px;

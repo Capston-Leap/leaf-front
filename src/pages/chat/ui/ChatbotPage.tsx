@@ -1,19 +1,31 @@
 import styled from 'styled-components';
-import { useLocation } from 'react-router-dom';
 import BackToolbar from "@shared/ui/BackToolbar.tsx";
 import ChatRoom from "@chat/components/ChatRoom.tsx";
 import chatbotBottomBg from '@img/img-chat-bg.png';
-import ImgLeafi from '@img/img-leafi-3.png';
+import { useUserInfo } from "@shared/hooks/query/useUserInfo.ts";
+import { useUserInfoStore } from "@shared/store/useUserInfoStore.ts";
+import { useEffect } from "react";
+import { LeapyType } from "@shared/types/response/chat.ts";
 
 const ChatbotPage = () => {
-  const location = useLocation();
-  const { characterName, image } = location.state || {};
+  const { data, isLoading, isError } = useUserInfo();
+  const { setUserName, setLeapyType, leapyType } = useUserInfoStore();
+
+  useEffect(() => {
+    if (!data?.name) return;
+    setUserName(data.name);
+    setLeapyType(data.chatbotType);
+
+  }, [data?.chatbotType, data?.name, setLeapyType, setUserName]);
+
+  if (isLoading || !data) return <div>Loading...</div>;
+  if (isError) return <div>Error loading data</div>;
 
   return (
     <ChatbotContainer>
-      <BackToolbar title={characterName} isWhite={true} />
+      <BackToolbar title="리피" isWhite={true} />
       <BackgroundImage src={chatbotBottomBg} />
-      <ChatbotImage src={ImgLeafi} alt='chatbot' />
+      <ChatbotImage src={LeapyType[leapyType]} alt='chatbot' />
       <ChatRoom />
     </ChatbotContainer>
   );
