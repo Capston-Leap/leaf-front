@@ -8,7 +8,7 @@ import { RegisterUserRequest } from "@shared/types/request/user.ts";
 
 const SignupForm = () => {
   const { mutate } = useRegisterMember();
-  const { register, getValues, setValue, watch, handleSubmit } = useForm<RegisterSchemaType>({
+  const { register, handleSubmit } = useForm<RegisterSchemaType>({
     resolver: zodResolver(RegisterSchema),
     mode: 'onChange',
   })
