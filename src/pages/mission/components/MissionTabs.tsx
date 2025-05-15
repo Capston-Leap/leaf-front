@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { useHandleTab } from "@mission/feature/custom/useHandleTab.ts";
 import CurrentGoal from "@mission/components/CurrentGoal.tsx";
 import MissionList from "@mission/components/MissionList.tsx";
+import { useHandleTab } from "@mission/feature/hooks/custom/useHandleTab.ts";
 
 const MissionTabs = () => {
   const { activeTab, handleTab, tabRefs, indicatorStyle } = useHandleTab();
