@@ -1,31 +1,39 @@
 import styled from 'styled-components';
 import GoalProgressbar from "@mission/components/GoalProgressbar.tsx";
 import GoalList from "@mission/components/GoalList.tsx";
+import { useGetCurrentArea } from "@mission/feature/hooks/query/useGetCurrentArea.ts";
+import { AreaType } from "@shared/types/area.ts";
+import { useNavigate } from "react-router";
 
 const CurrentGoal = () => {
-  /*const { data, isPending } = useQuery({
-    queryKey: ['currentGoal'],
-    queryFn: () => getAreaHome(),
-  });*/
+  const { data, isPending, isError } = useGetCurrentArea();
+  const navigate = useNavigate();
+  if (isPending || !data) {
+    return <>Loading...</>;
+  }
 
-  /*if (isPending) {
-    return <Loading />;
-  }*/
+  if (isError) {
+    return <>Error loading data</>;
+  }
 
-  /*const title =
-    data!!.progressAreaType !== 'ALL'
-      ? `${AreaType[data!!.progressAreaType]}기술 마스터하기`
-      : '모든 기술 마스터!!!';*/
+  const title =
+    data?.selectedMissionType
+      ? `${AreaType[data.selectedMissionType]}기술 마스터하기`
+      : '모든 기술 마스터!!!';
+
+  if (data.progress === 100) {
+    navigate('/goal')
+  }
 
   return (
     <>
       <GoalContainer>
         <ContentContainer>
           <CurrentGoalLabel>현재 목표</CurrentGoalLabel>
-          <GoalTitle>{'일상생활기술 마스터하기'}</GoalTitle>
+          <GoalTitle>{title}</GoalTitle>
         </ContentContainer>
         <ProgressbarContainer>
-          <GoalProgressbar value={100} />
+          <GoalProgressbar value={data.progress} />
         </ProgressbarContainer>
       </GoalContainer>
       <MissionListText>자립목표 리스트</MissionListText>

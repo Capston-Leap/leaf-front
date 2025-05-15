@@ -1,18 +1,20 @@
 import CustomButton from "@shared/ui/CustomButton.tsx";
 import styled, { keyframes } from "styled-components";
-import ManLeafi from '@img/img-man-leafi.png'
+import { useUserInfoStore } from "@shared/store/useUserInfoStore";
+import { LeapyType } from "@shared/types/response/chat.ts";
 
 interface ThirdStepProps {
   handleNext: () => void;
 }
 
 const ThirdStep = ({ handleNext }: ThirdStepProps) => {
+  const { leapyType } = useUserInfoStore();
   return (
     <Wrapper>
       <ContentContainer>
         <p>'쨘! 리피가 생성되었어요!'</p>
         <ImgWrapper />
-        <img src={ManLeafi} />
+        <LeapyImage src={LeapyType[leapyType]} />
       </ContentContainer>
       <CustomButton label="다음" onClick={handleNext} isValid={true} marginTop="auto" />
     </Wrapper>
@@ -40,6 +42,10 @@ const grow = keyframes`
     height: 270px;
   }
 `;
+
+const LeapyImage = styled.img`
+  width: 200px;
+`
 
 const ContentContainer = styled.div`
   width: 100%;

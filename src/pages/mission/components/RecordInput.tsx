@@ -1,16 +1,12 @@
 import styled from 'styled-components';
 import { UseFormRegister } from 'react-hook-form';
 import React, { useState } from 'react';
-
-type FormValues = {
-  mission?: string;
-  feeling?: string;
-};
+import { MissionWriteSchemaType } from "@mission/feature/schema/mission.ts";
 
 interface TextInputProps {
   title: string;
-  name: keyof FormValues;
-  register: UseFormRegister<FormValues>;
+  name: keyof MissionWriteSchemaType;
+  register: UseFormRegister<MissionWriteSchemaType>;
   error?: string;
 }
 
@@ -25,7 +21,7 @@ const RecordInput = ({ title, register, name, error }: TextInputProps) => {
     <TextInputContainer>
       <p>{title}</p>
       <InputArea
-        placeholder='내용을 입력해주세요.'
+        placeholder="내용을 입력해주세요."
         maxLength={200}
         {...register(name)}
         onChange={(event) => {

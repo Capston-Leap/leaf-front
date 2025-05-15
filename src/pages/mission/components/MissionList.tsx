@@ -1,43 +1,48 @@
 import styled from 'styled-components';
-import { onGoingMission } from "@shared/apis/mocks/mission.ts";
 import MissionCard from "@mission/components/MissionCard.tsx";
+import { useGetMissionList } from "@mission/feature/hooks/query/useGetMissionList.ts";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
 
 interface MissionListProps {
   type: 'onGoing' | 'completed';
 }
 
 const MissionList = ({ type }: MissionListProps) => {
-  /*const { data, isPending } = useFetchMissions(type);
+  const { data, fetchNextPage, hasNextPage, isLoading } = useGetMissionList(type.toUpperCase());
+  const { ref, inView } = useInView();
 
-  if (isPending) {
-    return <Loading />;
-  }*/
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, inView]);
+
+  if (isLoading || !data) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <MissionListContainer>
-      {/*{data?.map((mission: OnGoingMission | CompletedMission) => (
-        <MissionCard
-          key={mission.id}
-          id={mission.id}
-          missionType={AreaType[mission.areaName]}
-          missionName={mission.missionName}
-          isComplete={mission.completed}
-          mission={type === 'onGoing' ? (mission as OnGoingMission) : undefined}
-        />
-      ))}*/}
-      {onGoingMission.map((mission) => (
-        <MissionCard
-          key={mission.id}
-          id={mission.id}
-          missionType={mission.areaName}
-          missionName={mission.missionName}
-        />
+      {data.pages.map((page) => (
+        page?.missionList.map((mission) => (
+          <MissionCard
+            key={mission.missionId}
+            id={mission.missionId}
+            tabType={type}
+            missionRecordId={mission.missionRecordId}
+            missionType={mission.missionType}
+            missionName={mission.title}
+          />
+        ))
       ))}
-      {/*{data?.length === 0 && (*/}
-      {/*<NonMissionContainer>
-        <NoneMissionText>아직 완료한 미션이 없어요!</NoneMissionText>
-        <Image src={slime2} />
-      </NonMissionContainer>*/}
+      <div ref={ref} />
+      {data.pages?.length === 0 && (
+        <NonMissionContainer>
+          <NoneMissionText>아직 완료한 미션이 없어요!</NoneMissionText>
+        </NonMissionContainer>
+      )}
     </MissionListContainer>
   );
 };
@@ -68,8 +73,10 @@ const NonMissionContainer = styled.div`
   height: 70vh;
 `;
 
+/*
 const Image = styled.img`
   width: 120px;
   height: 96px;
   margin-top: 18px;
 `;
+*/

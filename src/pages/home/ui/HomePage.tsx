@@ -1,35 +1,45 @@
 import styled, { keyframes } from 'styled-components';
 import ImgHomeBg from '@img/img-home-bg.png';
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import MissionInfo from "@home/compoenets/MissionInfo.tsx";
 import ChatIcon from "@icon/ic-chat-icon.tsx";
 import PolygonSvg from "@icon/ic-polygon.svg";
 import NavBar from "@shared/ui/NavBar.tsx";
-import LeafiMan from "@img/img-leafi-3.png";
 import IcChatIntro from "@icon/ic-chat-intro.tsx";
 import SupportCard from "@home/compoenets/SupportCard.tsx";
+import { useGetHomeInfo } from "@home/feature/hooks/query/useGetHomeInfo.ts";
+import { useManageSentence } from "@home/feature/hooks/custom/useManageSentence.ts";
+import { Support } from "@home/feature/type/support.ts";
+import { useUserInfo } from "@shared/hooks/query/useUserInfo.ts";
+import { LeapyType } from "@shared/types/response/chat.ts";
 
 export function HomePage() {
+  const { data, isLoading, isError } = useGetHomeInfo();
+  const { data: userInfo, isLoading: isLoadingUserInfo } = useUserInfo();
+  const { sentenceIndex, handleNextSentence, SentenceSet } = useManageSentence();
   const navigate = useNavigate();
-  const [sentenceIndex, setSentenceIndex] = useState(0); // 현재 문장 인덱스 관리
-
-  const SentenceSet = [
-    '오늘은 무슨 일 없었어?',
-    '안녕! 오늘 기분은 어때?',
-    '넌 정말 잘하고 있어!',
-    '오늘 뭔가 재밌는 일이 있었을까?',
-    '어떤 하루를 보냈는지 들려줄래?',
-  ];
 
   const navigateChatbot = () => {
     navigate('/chat');
   };
 
-  // 문장 변경 함수
-  const handleNextSentence = () => {
-    setSentenceIndex((prevIndex) => (prevIndex + 1) % SentenceSet.length); // 다음 문장으로 이동, 마지막 문장 후 처음으로
-  };
+  if (isLoading || isLoadingUserInfo || !data || !userInfo) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading data</div>;
+  }
+
+  if (userInfo && data) {
+    if (userInfo?.chatbotType === null && userInfo?.missionType === null) {
+      navigate('/onboarding');
+    } else if ((userInfo?.chatbotType !== null && userInfo?.missionType === null) || data.progress === 100) {
+      navigate('/goal');
+    }
+  }
+
+  const supportType = Support[data.info.infoType] ? Support[data.info.infoType] : "기타";
 
   return (
     <Wrapper>
@@ -37,9 +47,9 @@ export function HomePage() {
         {/* 미션관리, 챗봇 버튼 영역 */}
         <HeaderSection>
           <MissionInfo
-            nickname="안뇽"
-            level={3}
-            missionProPer={80}
+            nickname={data?.nickname}
+            level={data?.level}
+            missionProPer={data.progress}
           />
           <InnerWrapper>
             <ChatBtn onClick={navigateChatbot}>
@@ -56,13 +66,14 @@ export function HomePage() {
           </button>
           <img src={PolygonSvg} alt="" />
           <ImgContainer>
-            <img src={LeafiMan} alt="" />
+            <img src={LeapyType[userInfo?.chatbotType]} alt="" />
           </ImgContainer>
           <button className="name-wrapper">리피</button>
         </CharacterSection>
         <MissionContainer onClick={() => navigate('/support')}>
           {/* 지원제도 카드 */}
-          <SupportCard supportType="경제" supportTitle="청년 도약 계좌" supportSubTitle="만 19세~34세 이하" link="" />
+          <SupportCard supportType={supportType} supportTitle={data.info.infoTitle}
+                       supportSubTitle={data.info.infoContent} link={data.info.infoUrl} />
         </MissionContainer>
       </ContentContainer>
       <NavBar />

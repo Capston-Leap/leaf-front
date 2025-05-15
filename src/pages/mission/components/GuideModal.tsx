@@ -3,40 +3,50 @@ import guideSlime from '@img/guide-slime.png';
 import cancel from '@icon/ic-cancel.svg';
 import CustomButton from "@shared/ui/CustomButton.tsx";
 import { useNavigate } from "react-router";
+import { useGetMissionDetail } from "@mission/feature/hooks/query/useGetMissionDetail.ts";
 
 interface GuideModalProps {
   handleClose: () => void;
+  missionId: number;
+  missionRecordId: number;
   /*mission?: OnGoingMission;*/
 }
 
-const GuideModal = ({ handleClose }: GuideModalProps) => {
+const GuideModal = ({ missionId, handleClose, missionRecordId }: GuideModalProps) => {
   const navigate = useNavigate();
+  const { data, isLoading, isError } = useGetMissionDetail(missionId);
+
+  if (isLoading || !data) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading data</div>;
+  }
 
   const navigateWrite = () => {
-    navigate('record');
     handleClose();
-  }
+    navigate(`/mission/record/${missionRecordId}`);
+  };
 
   return (
     <Overlay>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <CancelIcon src={cancel} onClick={handleClose} />
-        <MissionName>{'3일 동안의 식단 작성하기'}</MissionName>
-        <Description>{'식단표를 계획할 때 영양성분을 고려하여 다양한 식품을 포함시키는 방법을 익히기'}</Description>
+        <MissionName>{data.title}</MissionName>
+        <Description>{data.description}</Description>
         {/*<Divider color={theme.colors.gray100}/>*/}
         <ImageContainer>
           <Image src={guideSlime} />
           <SlimeComment>단계별로 수행 방법을 알려줄게</SlimeComment>
         </ImageContainer>
         <StepContainer>
-          <StepContent key={1}>
-            <Number>{1}</Number>
-            <Step>{'영양성분을 고려하여 다양한 종류의 채소, 단배질, 탄수화물을 포함시킨다.'}</Step>
-          </StepContent>
-          <StepContent key={2}>
-            <Number>{2}</Number>
-            <Step>{'식품의 영양성분을 확인하는 방법을 학습하고, 주간 식단표에 적용해본다.'}</Step>
-          </StepContent>
+          {data.steps.map((step) => (
+            <StepContent key={step.stepNum}>
+              <Number>{step.stepNum}</Number>
+              <Step>{step.description}</Step>
+            </StepContent>
+          ))}
           {/*{mission?.steps.map((step, index) => (
             <StepContent key={index}>
               <Number>{index + 1}</Number>
@@ -44,7 +54,7 @@ const GuideModal = ({ handleClose }: GuideModalProps) => {
             </StepContent>
           ))}*/}
         </StepContainer>
-        <CustomButton onClick={navigateWrite} label="완료하기" isValid={true}  />
+        <CustomButton onClick={navigateWrite} label="완료하기" isValid={true} />
       </ModalContainer>
     </Overlay>
   );
@@ -138,7 +148,8 @@ const StepContainer = styled.div`
 const StepContent = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: left;
+  align-items: center;
   gap: 12px;
 `;
 
@@ -168,13 +179,4 @@ const CancelIcon = styled.img`
   right: 22px;
   width: 18px;
   height: 18px;
-`;
-
-const Button = styled.button`
-  background-color: ${({ theme }) => theme.colors.primary};
-  padding: 17.5px 0 17.5px 0;
-  border-radius: 18px;
-  margin-top: auto;
-  font: ${({ theme }) => theme.fonts.body_sb_18px};
-  color: white;
 `;

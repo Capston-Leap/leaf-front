@@ -41,6 +41,5 @@ export const useHandleProgress = (value: number) => {
 
     return () => clearInterval(interval);
   }, [phase, value]);
-
   return { currentValue };
 };

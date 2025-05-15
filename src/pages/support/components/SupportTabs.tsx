@@ -3,25 +3,6 @@ import SupportPanel from "@support/components/SupportPanel.tsx";
 import SupportOverviewCard from "@support/components/SupportOverviewCard.tsx";
 import SupportList from "@support/components/SupportList.tsx";
 import { useHandleSupportTab } from "@support/feature/hooks/useHandleSupportTab.ts";
-/*
-const supportTabs = () => [
-  {
-    id: 0,
-    label: '전체',
-  },
-  {
-    id: 1,
-    label: '경제',
-  },
-  {
-    id: 2,
-    label: '주거',
-  },
-  {
-    id: 3,
-    label: '진로',
-  },
-];*/
 
 const SupportTabs = () => {
   const { activeTab, handleTab, tabRefs, indicatorStyle } = useHandleSupportTab();
@@ -48,9 +29,9 @@ const SupportTabs = () => {
               <SupportList />
             </>
           )}
-          {activeTab === 2 && <SupportList supportType="경제" />}
-          {activeTab === 3 && <SupportList supportType="주거" />}
-          {activeTab === 4 && <SupportList supportType="진로" />}
+          {activeTab === 2 && <SupportList supportType="ECONOMY" />}
+          {activeTab === 3 && <SupportList supportType="HOUSING" />}
+          {activeTab === 4 && <SupportList supportType="CAREER" />}
         </SupportPanel>
       </TabBox>
     </TabContainer>

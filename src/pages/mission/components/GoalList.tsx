@@ -11,19 +11,19 @@ const goalList = [
     id: 1,
     goalName: '일상생활기술',
     image: washer,
-    type: 'DAILY_LIFE',
+    type: 'LIFE',
   },
   {
     id: 2,
     goalName: '자기관리기술',
     image: clean,
-    type: 'SELF_MANAGEMENT',
+    type: 'SELF',
   },
   {
     id: 3,
     goalName: '돈관리기술',
     image: money,
-    type: 'MONEY_MANAGEMENT',
+    type: 'MONEY',
   },
   {
     id: 4,
@@ -40,10 +40,6 @@ interface GoalListProps {
 }
 
 const GoalList = ({ enabled, init, currentAreaType }: GoalListProps) => {
-  /*const { data, isPending } = useQuery({
-    queryKey: ['getCompleteArea'],
-    queryFn: () => getCompleteArea(),
-  });*/
   const navigate = useNavigate();
 
   const handleNavigate = (id: string) => {
@@ -51,14 +47,10 @@ const GoalList = ({ enabled, init, currentAreaType }: GoalListProps) => {
     const goal = goalList.find((el) => el.type == id);
     console.log(goal);
     if (init) {
-      navigate('/goal/confirm?init=true', { state: { goal } });
+      navigate('/goal/confirm', { state: { goal } });
     }
-    navigate('/goal/confirm?init=false', { state: { goal } });
+    navigate('/goal/confirm', { state: { goal } });
   };
-
-  /*if (isPending) {
-    return <Loading />;
-  }*/
 
   return (
     <GoalListContainer>

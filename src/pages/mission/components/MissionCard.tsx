@@ -1,19 +1,23 @@
 import styled from 'styled-components';
 import GuideModal from "@mission/components/GuideModal.tsx";
-import { useHandleModal } from "@mission/feature/custom/useHandleModal.ts";
+import { useHandleModal } from "@mission/feature/hooks/custom/useHandleModal.ts";
+import { AreaType } from "@shared/types/area.ts";
+import { useNavigate } from "react-router";
 
 interface MissionProps {
   id: number;
   missionType: string;
   missionName: string;
+  missionRecordId?: number;
+  tabType: 'onGoing' | 'completed';
   /*isComplete: boolean;*/
   /*mission: OnGoingMission | undefined;*/
 }
 
-const MissionCard = ({ id, missionType, missionName }: MissionProps) => {
-  /*const navigate = useNavigate();*/
-  const { open, handleOpen } = useHandleModal()
-  console.log(open);
+const MissionCard = ({ id, missionType, missionName, missionRecordId, tabType }: MissionProps) => {
+  const navigate = useNavigate();
+  const { open, handleOpen } = useHandleModal();
+  const formatedMissionType = AreaType[missionType];
 
   /*const label = isComplete ? '완료' : '완료하기';*/
 
@@ -23,15 +27,17 @@ const MissionCard = ({ id, missionType, missionName }: MissionProps) => {
 
   return (
     <>
-      <MissionContainer onClick={handleOpen}>
-        <MissionType>{missionType}</MissionType>
+      <MissionContainer
+        onClick={tabType === "onGoing" ? handleOpen : () => navigate(`/mission/complete/${missionRecordId}`, { state: { missionName } })}>
+        <MissionType>{formatedMissionType}</MissionType>
         <MissionTitle>{missionName}</MissionTitle>
         {/*<ButtonContainer>
           <CardButton isDisabled={isComplete} label={label} onClick={handleNavigateWritePage} />
         </ButtonContainer>*/}
       </MissionContainer>
 
-      {open && <GuideModal handleClose={handleOpen} />}
+      {(open && tabType !== 'completed') &&
+        <GuideModal handleClose={handleOpen} missionId={id} missionRecordId={missionRecordId!} />}
     </>
   );
 };

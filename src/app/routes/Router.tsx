@@ -7,7 +7,7 @@ import { CommunityPage } from "@pages/community";
 import { MyPage } from "@pages/my";
 import {
   GoalSelectConfirmPage,
-  GoalSelectPage,
+  GoalSelectPage, MissionCompleteDetailPage,
   MissionCompletePage,
   MissionPage,
   MissionRecordWritePage,
@@ -54,7 +54,7 @@ export const router = createBrowserRouter([
         element: <MissionCompletePage />,
       },
       {
-        path: '/mission/record',
+        path: '/mission/record/:missionId',
         element: <MissionRecordWritePage />,
       },
       {
@@ -93,6 +93,10 @@ export const router = createBrowserRouter([
         path: '/diary/:id',
         element: <DiaryDetailPage />,
       },
+      {
+        path: 'mission/complete/:missionId',
+        element: <MissionCompleteDetailPage />,
+      }
     ],
   },
 ]);

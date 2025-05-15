@@ -1,7 +1,7 @@
 import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import styled from 'styled-components';
 import { theme } from "@app/styles";
-import { useHandleProgress } from "@mission/feature/custom/useHandleProgress.ts";
+import { useHandleProgress } from "@mission/feature/hooks/custom/useHandleProgress.ts";
 
 interface GoalProgressbarProps {
   value: number;

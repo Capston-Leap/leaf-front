@@ -2,22 +2,15 @@ import sendIcon from '@icon/ic-send.svg';
 import React, { useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useChatStore } from "@chat/feature/store/useChatStore.ts";
+import { usePostChat } from "@chat/feature/hooks/usePostChat.ts";
+import { LeapyRequest } from "@shared/types/request/chat.ts";
+import { Message } from "@chat/feature/type/chat.ts";
 
 const ChatInput = () => {
   const [value, setValue] = useState<string>('');
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const { addMessage } = useChatStore();
-
-  /*const mutation = useMutation({
-    mutationFn: async (message: string) => postChat(message),
-    onSuccess: (data) => {
-      const botReply = { id: Date.now(), content: data.answer, isUser: false };
-      addMessage(botReply);
-    },
-    onError: (error) => {
-      console.error('Chat API Error:', error);
-    },
-  });*/
+  const { addMessage,  } = useChatStore();
+  const { mutate } = usePostChat();
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
@@ -29,32 +22,36 @@ const ChatInput = () => {
   };
 
   const handleSendMessage = () => {
-    /*if (value.trim()) {
-      const userMessage: Message = { id: Date.now(), content: value.trim(), isUser: true };
+    if (value.trim()) {
+      const userMessage: Message = { content: value.trim(), isUser: true };
       addMessage(userMessage);
 
       setValue('');
       if (textAreaRef.current) {
         textAreaRef.current.style.height = '52px';
       }
-      mutation.mutate(value.trim());
-    }*/
+
+      const data: LeapyRequest = {
+        content: value.trim(),
+      };
+      mutate(data);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    /*if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-    }*/
+    }
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    /*if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
       if (textAreaRef.current) {
         textAreaRef.current.style.height = '52px'; //
       }
-    }*/
+    }
   };
 
   return (
@@ -65,14 +62,14 @@ const ChatInput = () => {
         onChange={handleInput}
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
-        placeholder='메세지를 입력해주세요'
+        placeholder="메세지를 입력해주세요"
       />
       <SendButton
         className={value.trim() ? 'visible' : ''}
         onClick={handleSendMessage}
         disabled={!value.trim()}
       >
-        <img src={sendIcon} alt='Send' />
+        <img src={sendIcon} alt="Send" />
       </SendButton>
     </InputContainer>
   );
@@ -140,9 +137,8 @@ const SendButton = styled.button`
 
   opacity: 0;
   transform: scale(0.9);
-  transition:
-    opacity 0.3s ease,
-    transform 0.1s ease;
+  transition: opacity 0.3s ease,
+  transform 0.1s ease;
 
   &.visible {
     opacity: 1;

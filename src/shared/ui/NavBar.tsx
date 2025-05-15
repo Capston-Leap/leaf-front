@@ -76,7 +76,7 @@ const Wrapper = styled.nav`
   position: fixed;
   bottom: 10px;
   width: 100vw;
-  max-width: 480px;
+  max-width: 440px;
   padding: 0 48px 15px 48px;
 `;
 const Container = styled.div`
