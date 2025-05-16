@@ -3,7 +3,7 @@ import { useTokenStore } from "@shared/store/useTokenStore.ts";
 
 export const axiosInstance = axios.create({
   baseURL: `${import.meta.env.VITE_SERVER_ADDRESS}`,
-  timeout: 5000,
+  timeout: 20000,
   withCredentials: true,
 });
 
