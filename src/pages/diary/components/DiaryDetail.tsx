@@ -1,24 +1,30 @@
 import styled from 'styled-components';
 import Record from "@diary/components/Record.tsx";
-import { emotion } from "@diary/feature/mocks/emotion.ts";
+import { useGetDiaryDetail } from "@diary/feature/hooks/query/useGetDiaryDetail.ts";
+import { EmotionImages } from "@shared/types/response/diary.ts";
+import EmotionChart from "@diary/components/EmotionChart.tsx";
 
 const DiaryDetail = () => {
-  /*const { missionId } = useParams<{ missionId: string }>();*/
-  /*const { data, mutate, isPending } = useMutation({
-    mutationKey: ['missionRecord', missionId],
-    mutationFn: (missionId: string) => postBuddyFeedback(missionId),
-  });*/
+  const { data, isLoading, isError } = useGetDiaryDetail(7);
+
+  if (isLoading || !data) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    return <div>Error loading data</div>;
+  }
 
   return (
     <DiaryDetailContainer>
       <InnerContainer>
         <p className="bold-title">오늘의 감정</p>
-        <img src={emotion[1].img} alt="" style={{ width: '13%' }} />
-        <p className="detail-description">오늘은 슬프고 눈물나는 하루를 보내셨네요 ㅠㅠ</p>
+        <img src={EmotionImages[data.category]} alt="" style={{ width: '13%' }} />
+        <p className="detail-description">{data.summary}</p>
+        <EmotionChart scores={data.emotionScores} />
       </InnerContainer>
-      <Record title="오늘 어떤 하루를 보냈나요?" content={""} />
+      <Record title="오늘 어떤 하루를 보냈나요?" content={data.daily} />
       <Divider />
-      <Record title="기억에 남는 일이 있었나요?" content={""} />
+      <Record title="기억에 남는 일이 있었나요?" content={data.memory} />
     </DiaryDetailContainer>
   );
 };
@@ -46,7 +52,6 @@ const InnerContainer = styled.div`
   .detail-description {
     margin-top: 5px;
     white-space: pre-wrap;
-    min-height: 10vh;
     font: ${({ theme }) => theme.fonts.body_m_16px};
     color: ${({ theme }) => theme.colors.gray900};
   }
