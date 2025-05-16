@@ -1,11 +1,19 @@
 import styled from 'styled-components';
 import BackToolbar from "@shared/ui/BackToolbar.tsx";
 import DiaryDetail from "@diary/components/DiaryDetail.tsx";
+import { useLocation } from "react-router";
+import { useParams } from "react-router-dom";
 
 export const DiaryDetailPage = () => {
+  const location = useLocation();
+  const { id } = useParams();
+  const { year, month } = location.state as { year: number; month: number; };
+
+  console.log(id)
+
   return (
     <DiaryDetailContainer>
-      <BackToolbar title={"2025년 12월 23일"} />
+      <BackToolbar title={`${year}년 ${month + 1}월 ${id}일`} />
       <DiaryDetailInner>
         <DiaryDetail />
       </DiaryDetailInner>
