@@ -12,6 +12,7 @@ import { useManageSentence } from "@home/feature/hooks/custom/useManageSentence.
 import { Support } from "@home/feature/type/support.ts";
 import { useUserInfo } from "@shared/hooks/query/useUserInfo.ts";
 import { LeapyType } from "@shared/types/response/chat.ts";
+import IcCalendar from '@icon/ic-calendar.svg';
 
 export function HomePage() {
   const { data, isLoading, isError } = useGetHomeInfo();
@@ -69,6 +70,9 @@ export function HomePage() {
             <img src={LeapyType[userInfo?.chatbotType]} alt="" />
           </ImgContainer>
           <button className="name-wrapper">리피</button>
+          <DiaryBtn onClick={() => navigate('/diary')}>
+            <img src={IcCalendar} alt="" />
+          </DiaryBtn>
         </CharacterSection>
         <MissionContainer onClick={() => navigate('/support')}>
           {/* 지원제도 카드 */}
@@ -125,6 +129,20 @@ const ChatBtn = styled.button`
   width: 55px;
   height: 55px;
 
+  border-radius: 50%;
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const DiaryBtn = styled.button`
+  width: 50px;
+  height: 50px;
+  
+  margin-left: auto;
+  margin-bottom: 30px;
   border-radius: 50%;
   background: #ffffff;
 
@@ -217,6 +235,9 @@ const CharacterSection = styled.section`
 `;
 
 const MissionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   position: absolute;
   bottom: 112px;
   width: 100%;

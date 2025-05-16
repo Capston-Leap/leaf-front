@@ -4,10 +4,20 @@ import GoalList from "@mission/components/GoalList.tsx";
 import { useGetCurrentArea } from "@mission/feature/hooks/query/useGetCurrentArea.ts";
 import { AreaType } from "@shared/types/area.ts";
 import { useNavigate } from "react-router";
+import { useEffect } from "react";
+import { useUserInfoStore } from "@shared/store/useUserInfoStore.ts";
 
 const CurrentGoal = () => {
-  const { data, isPending, isError } = useGetCurrentArea();
+  const { data, isPending, isError, isSuccess } = useGetCurrentArea();
+  const { setCurrentArea } = useUserInfoStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isSuccess && data?.selectedMissionType) {
+      setCurrentArea(data?.selectedMissionType);
+    }
+  }, [data?.selectedMissionType, isSuccess, setCurrentArea]);
+
   if (isPending || !data) {
     return <>Loading...</>;
   }
@@ -24,7 +34,6 @@ const CurrentGoal = () => {
   if (data.progress === 100) {
     navigate('/goal')
   }
-
   return (
     <>
       <GoalContainer>

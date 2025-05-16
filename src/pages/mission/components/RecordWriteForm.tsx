@@ -7,9 +7,11 @@ import { MissionWriteSchema, MissionWriteSchemaType } from "@mission/feature/sch
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useWriteMissionRecord } from "@mission/feature/hooks/mutate/useWriteMissionRecord.ts";
 import { MissionRecordRequest } from "@shared/types/request/mission.ts";
+import { useLocation } from "react-router";
 
 const RecordWriteForm = () => {
   const { missionId } = useParams<{ missionId: string }>();
+  const { title } = useLocation().state;
   const { mutate } = useWriteMissionRecord(parseInt(missionId!));
   const { register, handleSubmit, formState: { errors, isValid } } = useForm<MissionWriteSchemaType>({
     resolver: zodResolver(MissionWriteSchema),
@@ -27,7 +29,7 @@ const RecordWriteForm = () => {
 
   return (
     <InputFormWrapper>
-      <MissionTitle>{'3일 동안의 식단 작성하기'}</MissionTitle>
+      <MissionTitle>{title}</MissionTitle>
       <form
         onSubmit={onSubmit}
         style={{ height: '100%', display: 'flex', flexDirection: 'column', marginTop: '30px' }}

@@ -26,7 +26,7 @@ const GuideModal = ({ missionId, handleClose, missionRecordId }: GuideModalProps
 
   const navigateWrite = () => {
     handleClose();
-    navigate(`/mission/record/${missionRecordId}`);
+    navigate(`/mission/record/${missionRecordId}`, { state: { title: data.title } });
   };
 
   return (
