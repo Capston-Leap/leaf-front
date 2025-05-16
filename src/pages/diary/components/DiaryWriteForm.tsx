@@ -1,109 +1,48 @@
 import styled from 'styled-components';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { InferType } from 'yup';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import CustomButton from "@shared/ui/CustomButton.tsx";
-import RecordInput from "@mission/components/RecordInput.tsx";
-
-const schema = yup.object().shape({
-  mission: yup
-    .string()
-    .min(50, '최소 50자 이상 작성하셔야 합니다.')
-    .max(200, '최대 200자까지 작성 가능합니다.'),
-  feeling: yup
-    .string()
-    .min(50, '최소 50자 이상 작성하셔야 합니다.')
-    .max(200, '최대 200자까지 작성 가능합니다.'),
-});
-
-type FormValues = InferType<typeof schema>;
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DiaryWriteSchema, DiaryWriteSchemaType } from "@diary/feature/schema/diary.ts";
+import RecordInput from "@diary/components/RecordInput.tsx";
+import { useWriteDiary } from "@diary/feature/hooks/mutate/useWriteDiary.ts";
+import { DiaryCreateRequest } from "@shared/types/request/diary.ts";
 
 const DiaryWriteForm = () => {
-  const navigate = useNavigate();
-  const { missionId } = useParams<{ missionId: string }>();
-  /*const {
-    data: missionData,
-    mutate,
-    isPending: postPending,
-    isSuccess,
-  } = useMutation({
-    mutationFn: (missionRecord: MissionRecord) => postMissionRecord(missionRecord),
-    onError: () => {
-      alert('미션 기록 작성에 실패');
-    },
-  });
-
-  const { data, isPending } = useQuery({
-    queryKey: ['missionRecord', missionId],
-    queryFn: () => getMissionRecord(missionId!!),
-  });*/
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm<FormValues>({
-    resolver: yupResolver(schema),
+  const { register, handleSubmit, formState: { errors, isValid } } = useForm<DiaryWriteSchemaType>({
+    resolver: zodResolver(DiaryWriteSchema),
     mode: 'onChange',
   });
+  const { mutate } = useWriteDiary();
 
-  /*const onSubmit: SubmitHandler<FormValues> = (data) => {
-    const missionRecord: MissionRecord = {
-      id: Number(missionId),
-      content: data.mission!!,
-      feedback: data.feeling!!,
+  const onSubmit = handleSubmit((data: DiaryWriteSchemaType) => {
+    const request: DiaryCreateRequest = {
+      daily: data.daily,
+      memory: data.memory,
     };
-    mutate(missionRecord);
-  };
-
-  if (isPending || postPending) {
-    return <Loading />;
-  }
-
-  if (isSuccess && !postPending) {
-    console.log(missionData);
-    if (missionData?.allCompleted) {
-      navigate(navigations.GOAL_COMPLETE, {
-        state: {
-          level: missionData.characterResponseDTOForMission.level,
-          areaName: missionData.missionResponse2DTO.areaName,
-          characterType: missionData.characterResponseDTOForMission.characterType,
-        },
-      });
-    } else {
-      navigate('/mission/complete', { replace: true });
-    }
-  }*/
+    mutate(request);
+  });
 
   return (
     <InputFormWrapper>
       <form
-        onSubmit={() => console.log('제출완료')}
+        onSubmit={onSubmit}
         style={{ height: '100%', display: 'flex', flexDirection: 'column', marginTop: '30px' }}
       >
         <InputContainer>
           <RecordInput
-            title='오늘 어떤 하루를 보냈나요?'
-            name='mission'
+            title="오늘 어떤 하루를 보냈나요?"
+            name="daily"
             register={register}
-            error={errors.mission?.message}
+            error={errors.daily?.message}
           />
           <RecordInput
-            title='기억에 남는 일이 있었나요??'
-            name='feeling'
+            title="기억에 남는 일이 있었나요??"
+            name="memory"
             register={register}
-            error={errors.feeling?.message}
+            error={errors.memory?.message}
           />
-          {/*<CommentContainer>
-            <Comment
-              content={`수행일지를 작성하면\n버디가 코멘트를 달아드려요!`}
-              completed={false}
-            />
-          </CommentContainer>*/}
           <ButtonContainer>
-            <CustomButton onClick={() => navigate('/mission/complete')} label='완료' isValid={isValid} />
+            <CustomButton label="완료" isValid={isValid} />
           </ButtonContainer>
         </InputContainer>
       </form>
