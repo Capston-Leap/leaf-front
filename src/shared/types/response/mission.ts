@@ -35,3 +35,7 @@ export interface MissionRecordResponse {
   emotion: string;
   completedTime: string;
 }
+
+export interface CompletedMissionAreaResponse {
+  completedArea: string[];
+}

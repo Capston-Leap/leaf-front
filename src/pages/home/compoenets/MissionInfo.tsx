@@ -8,7 +8,7 @@ interface MissionInfoProps {
 }
 
 function MissionInfo({ nickname, level, missionProPer }: MissionInfoProps) {
-  const missionRestCount = (100 - missionProPer) / 25;
+  const missionRestCount = (100 - missionProPer) / 20;
   return (
     <Container>
       <span className='body-m-dark'>{nickname}님</span>

@@ -5,14 +5,21 @@ import CustomButton from "@shared/ui/CustomButton.tsx";
 import ConfirmContent from "@mission/components/ConfirmContent.tsx";
 import { usePatchMissionArea } from "@shared/hooks/mutate/usePatchMissionArea.ts";
 import { MissionAreaSettingRequest } from "@shared/types/request/mission.ts";
+import { useUserInfoStore } from "@shared/store/useUserInfoStore.ts";
 
 export const GoalSelectConfirmPage = () => {
   const location = useLocation();
+  const { setCurrentArea } = useUserInfoStore();
   const { image, type } = location.state.goal || {};
   const { mutate } = usePatchMissionArea()
   console.log(type)
   const request: MissionAreaSettingRequest = {
     missionType: type,
+  }
+
+  const onClickButton = () => {
+    setCurrentArea(type);
+    mutate(request);
   }
 
   return (
@@ -22,7 +29,7 @@ export const GoalSelectConfirmPage = () => {
         <ConfirmContent goalType={type} image={image} />
       </ContentContainer>
       <ButtonContainer>
-        <CustomButton label='네' isValid={true} onClick={() => mutate(request)} />
+        <CustomButton label='네' isValid={true} onClick={onClickButton} />
       </ButtonContainer>
     </MissionCompletionContainer>
   );
