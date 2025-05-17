@@ -5,25 +5,27 @@ import money from '@img/money.png';
 import clean from '@img/clean.png';
 import DoneCard from "@mission/components/DoneCard.tsx";
 import { useNavigate } from "react-router";
+import { useGetCompletedArea } from "@mission/feature/hooks/query/useGetCompletedArea.ts";
+import { useUserInfoStore } from "@shared/store/useUserInfoStore.ts";
 
 const goalList = [
   {
     id: 1,
     goalName: '일상생활기술',
     image: washer,
-    type: 'DAILY_LIFE',
+    type: 'LIFE',
   },
   {
     id: 2,
     goalName: '자기관리기술',
     image: clean,
-    type: 'SELF_MANAGEMENT',
+    type: 'SELF',
   },
   {
     id: 3,
     goalName: '돈관리기술',
     image: money,
-    type: 'MONEY_MANAGEMENT',
+    type: 'MONEY',
   },
   {
     id: 4,
@@ -36,35 +38,36 @@ const goalList = [
 interface GoalListProps {
   enabled: boolean;
   init: boolean;
-  currentAreaType?: string;
 }
 
-const GoalList = ({ enabled, init, currentAreaType }: GoalListProps) => {
-  /*const { data, isPending } = useQuery({
-    queryKey: ['getCompleteArea'],
-    queryFn: () => getCompleteArea(),
-  });*/
+const GoalList = ({ enabled, init }: GoalListProps) => {
   const navigate = useNavigate();
+  const { data, isLoading, isError } = useGetCompletedArea();
+  const { currentArea } = useUserInfoStore();
 
   const handleNavigate = (id: string) => {
     console.log(id);
     const goal = goalList.find((el) => el.type == id);
     console.log(goal);
     if (init) {
-      navigate('/goal/confirm?init=true', { state: { goal } });
+      navigate('/goal/confirm', { state: { goal } });
     }
-    navigate('/goal/confirm?init=false', { state: { goal } });
+    navigate('/goal/confirm', { state: { goal } });
   };
 
-  /*if (isPending) {
-    return <Loading />;
-  }*/
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading data</div>;
+  }
 
   return (
     <GoalListContainer>
       {goalList.map((goal) => {
-        const isCompleted = false;
-        const isCurrent = currentAreaType === goal.type;
+        const isCompleted = data?.completedArea.find((type) => type === goal.type);
+        const isCurrent = currentArea === goal.type;
 
         return (
           <GoalContainer

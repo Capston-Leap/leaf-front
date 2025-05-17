@@ -74,16 +74,10 @@ export default NavBar;
 
 const Wrapper = styled.nav`
   position: fixed;
-  bottom: 0;
-
-  width: 100%;
-  max-width: 480px;
-
-  left: 50%;
-  transform: translateX(-50%);
-  
-  padding-bottom: 15px;
-  z-index: 1000;
+  bottom: 10px;
+  width: 100vw;
+  max-width: 440px;
+  padding: 0 48px 15px 48px;
 `;
 
 const Container = styled.div`
