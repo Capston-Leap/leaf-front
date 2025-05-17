@@ -3,8 +3,8 @@ import styled from "styled-components";
 import NavBar from "@shared/ui/NavBar.tsx";
 import ArrowLeftIcon from "../../../shared/assets/icon/ic-arrow-left-white.svg";
 import TrashIcon from "../../../shared/assets/icon/trash-icon";
-import { logoutUser, deleteUser, fetchUserProfile } from "../../../api/user";
-import { fetchMyPosts, deletePost, updatePost } from "../../../api/community";
+import { logoutUser, deleteUser, fetchUserProfile } from '@shared/apis/users';
+import { fetchMyPosts, deletePost, updatePost } from '@shared/apis/community';
 
 import { useNavigate } from "react-router-dom";
 

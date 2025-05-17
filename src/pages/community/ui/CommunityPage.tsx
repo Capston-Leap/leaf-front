@@ -5,8 +5,10 @@ import PlusIcon from '../../../shared/assets/icon/plus-icon';
 import ArrowLeftIcon from '../../../shared/assets/icon/ic-arrow-left-white.svg';
 import SendIcon from '../../../shared/assets/icon/send-icon.svg';
 import TrashIcon from '../../../shared/assets/icon/trash-icon';
-import { createComment, deleteComment } from '../../../api/comment';
-import { fetchAllPosts, createPost, deletePost, updatePost, getPostDetail } from '../../../api/community';
+import { createComment, deleteComment } from '@shared/apis/comment';
+import { fetchAllPosts, createPost, getPostDetail, updatePost, deletePost } from '@shared/apis/community';
+import { useTokenStore } from '@shared/store/useTokenStore';
+import { useNavigate } from 'react-router-dom';
 
 const categories = ['자유', '고민', '정보'];
 
@@ -35,6 +37,8 @@ interface CreatePostResponse {
 }
 
 export const CommunityPage = () => {
+  const navigate = useNavigate();
+  const token = useTokenStore((state) => state.token);
   const [viewMode, setViewMode] = useState<'list' | 'write' | 'detail'>('list');
   const [selectedCategory, setSelectedCategory] = useState('자유');
   const [title, setTitle] = useState('');
@@ -52,6 +56,11 @@ export const CommunityPage = () => {
   const [editContent, setEditContent] = useState('');
 
   useEffect(() => {
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
     const loadPosts = async () => {
       try {
         const communityId = 1;
@@ -61,38 +70,34 @@ export const CommunityPage = () => {
         console.error("게시글 전체 조회 실패", error);
       }
     };
-
     loadPosts();
-  }, []);
+  }, [token, navigate]);
 
   const selectedIndex = categories.indexOf(selectedCategory);
   const filteredPosts = postList;
 
-const handlePostDelete = async () => {
-  if (!selectedPost) return;
-  const communityId = 1;
-  const postId = selectedPost.postId;
-
-  try {
-    const res = await deletePost(communityId, postId);
-    alert(res.message || "게시글이 삭제되었습니다.");
-    const updatedList = await fetchAllPosts(communityId, 1, 10);
-    setPostList(updatedList.content);
-    setSelectedPost(null);
-    setViewMode('list');
-  } catch (error: any) {
-    console.error("게시글 삭제 실패", error);
-    alert(error?.message || "게시글 삭제 중 오류가 발생했습니다.");
-  } finally {
-    setShowPostDeleteModal(false);
-  }
-};
+  const handlePostDelete = async () => {
+    if (!selectedPost) return;
+    const communityId = 1;
+    try {
+      await deletePost(communityId, selectedPost.postId);
+      alert('게시글이 삭제되었습니다.');
+      const updatedList = await fetchAllPosts(communityId, 1, 10);
+      setPostList(updatedList.content);
+      setSelectedPost(null);
+      setViewMode('list');
+    } catch (error) {
+      console.error("게시글 삭제 실패", error);
+      alert("게시글 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setShowPostDeleteModal(false);
+    }
+  };
 
   const handleCommentDelete = async (commentId: number) => {
     if (!selectedPost) return;
     const communityId = 1;
     const postId = selectedPost.postId;
-
     try {
       await deleteComment(communityId, postId, commentId);
       alert('댓글이 삭제되었습니다.');
@@ -118,9 +123,9 @@ const handlePostDelete = async () => {
 
           <TabContainer>
             {categories.map(cat => (
-<Tab key={cat} onClick={() => setSelectedCategory(cat)} $isSelected={selectedCategory === cat}>
-  {cat}
-</Tab>
+              <Tab key={cat} onClick={() => setSelectedCategory(cat)} $isSelected={selectedCategory === cat}>
+                {cat}
+              </Tab>
 
             ))}
             <Underline style={{ transform: `translateX(${selectedIndex * 100}%)` }} />
@@ -288,53 +293,49 @@ const handlePostDelete = async () => {
         </>
       )}
 
-      {editMode && selectedPost && (
-  <WriteContainer>
-    <HeaderWrapper>
-      <BackIconButton onClick={() => setEditMode(false)}>
-        <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
-      </BackIconButton>
-      <HeaderTitle>게시글 수정</HeaderTitle>
-    </HeaderWrapper>
+      {editMode && selectedPost ? (
+        <WriteContainer>
+          <HeaderWrapper>
+            <BackIconButton onClick={() => setEditMode(false)}>
+              <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
+            </BackIconButton>
+            <HeaderTitle>게시글 수정</HeaderTitle>
+          </HeaderWrapper>
 
-    <Label>제목</Label>
-    <Input
-      value={editTitle}
-      onChange={(e) => setEditTitle(e.target.value)}
-      placeholder="제목을 입력하세요"
-    />
-    <Label>내용</Label>
-    <Textarea
-      value={editContent}
-      onChange={(e) => setEditContent(e.target.value)}
-      placeholder="내용을 입력하세요"
-    />
-    <SubmitButton
-      disabled={!editTitle || !editContent}
-      onClick={async () => {
-        const communityId = 1;
-        const postId = selectedPost.postId;
-        try {
-          const result = await updatePost(communityId, postId, editTitle, editContent);
-          alert(result.message || "게시글이 수정되었습니다.");
-          const updatedList = await fetchAllPosts(communityId, 1, 10);
-          setPostList(updatedList.content);
-          setSelectedPost({
-            ...selectedPost,
-            title: editTitle,
-            content: editContent
-          });
-          setEditMode(false);
-        } catch (err) {
-          console.error("게시글 수정 실패", err);
-          alert("게시글 수정 중 오류가 발생했습니다.");
-        }
-      }}
-    >
-      수정 완료
-    </SubmitButton>
-  </WriteContainer>
-)}
+          <Label>제목</Label>
+          <Input
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            placeholder="제목을 입력하세요"
+          />
+          <Label>내용</Label>
+          <Textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            placeholder="내용을 입력하세요"
+          />
+          <SubmitButton
+            disabled={!editTitle || !editContent}
+            onClick={async () => {
+              const communityId = 1;
+              try {
+                await updatePost(communityId, selectedPost.postId, editTitle, editContent);
+                alert('게시글이 수정되었습니다.');
+                const updatedList = await fetchAllPosts(communityId, 1, 10);
+                setPostList(updatedList.content);
+                setSelectedPost({ ...selectedPost, title: editTitle, content: editContent });
+                setEditMode(false);
+              } catch (error) {
+                console.error("게시글 수정 실패", error);
+                alert("게시글 수정 중 오류가 발생했습니다.");
+              }
+            }}
+          >
+            수정 완료
+          </SubmitButton>
+        </WriteContainer>
+      ) : null}
+
       <NavBar />
     </Container>
   );
