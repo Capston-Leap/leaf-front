@@ -79,6 +79,7 @@ const Wrapper = styled.nav`
   max-width: 440px;
   padding: 0 48px 15px 48px;
 `;
+
 const Container = styled.div`
   width: 100%;
   height: 68px;
