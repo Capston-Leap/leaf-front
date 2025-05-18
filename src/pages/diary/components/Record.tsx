@@ -21,7 +21,6 @@ const RecordContainer = styled.div`
   flex-direction: column;
   align-content: center;
   width: 100%;
-  max-width: 480px;
   background-color: white;
 `;
 
@@ -34,10 +33,12 @@ const RecordTitle = styled.div`
 const RecordContent = styled.div`
   font: ${({ theme }) => theme.fonts.body_m_16px};
   color: ${({ theme }) => theme.colors.gray900};
-  padding: 0 18px;
+  padding: 18px;
   margin-top: 30px;
   height: 25vh;
   border: 2px solid ${({ theme }) => theme.colors.gray200};
   border-radius: 28px;
+  overflow: hidden;
   white-space: pre-wrap;
+  word-break: break-word;
 `;

@@ -1,8 +1,11 @@
+import Calendar from "@diary/components/Calendar.tsx";
+import BackToolbar from "@shared/ui/BackToolbar.tsx";
+
 export const DiaryPage = () => {
   return (
-    <div>
-      <h1>Diary Page</h1>
-      <p>This is the diary page.</p>
+    <div style={{ display: "flex", flexDirection: "column", height: '100%'}}>
+      <BackToolbar title="감정일기" />
+      <Calendar />
     </div>
   );
 };

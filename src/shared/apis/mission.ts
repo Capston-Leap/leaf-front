@@ -2,6 +2,7 @@ import { MissionAreaSettingRequest, MissionRecordRequest } from "@shared/types/r
 import { axiosInstance } from "@shared/apis/axios-instance.ts";
 import { AxiosResponse } from "axios";
 import {
+  CompletedMissionAreaResponse,
   MissionAreaResponse,
   MissionDetailResponse,
   MissionRecordResponse,
@@ -65,5 +66,14 @@ export const getRecordDetail = async (userMissionId: number) => {
     return response.data;
   } catch ( error ) {
     console.error('Error fetching record detail:', error);
+  }
+}
+
+export const getCompletedMissionArea = async () => {
+  try {
+    const response: AxiosResponse<CompletedMissionAreaResponse> = await axiosInstance.get('/mission/area/completed');
+    return response.data;
+  } catch ( error ) {
+    console.error('Error fetching completed mission area:', error);
   }
 }

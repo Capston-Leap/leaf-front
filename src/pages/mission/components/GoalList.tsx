@@ -5,6 +5,8 @@ import money from '@img/money.png';
 import clean from '@img/clean.png';
 import DoneCard from "@mission/components/DoneCard.tsx";
 import { useNavigate } from "react-router";
+import { useGetCompletedArea } from "@mission/feature/hooks/query/useGetCompletedArea.ts";
+import { useUserInfoStore } from "@shared/store/useUserInfoStore.ts";
 
 const goalList = [
   {
@@ -36,11 +38,12 @@ const goalList = [
 interface GoalListProps {
   enabled: boolean;
   init: boolean;
-  currentAreaType?: string;
 }
 
-const GoalList = ({ enabled, init, currentAreaType }: GoalListProps) => {
+const GoalList = ({ enabled, init }: GoalListProps) => {
   const navigate = useNavigate();
+  const { data, isLoading, isError } = useGetCompletedArea();
+  const { currentArea } = useUserInfoStore();
 
   const handleNavigate = (id: string) => {
     console.log(id);
@@ -52,11 +55,19 @@ const GoalList = ({ enabled, init, currentAreaType }: GoalListProps) => {
     navigate('/goal/confirm', { state: { goal } });
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading data</div>;
+  }
+
   return (
     <GoalListContainer>
       {goalList.map((goal) => {
-        const isCompleted = false;
-        const isCurrent = currentAreaType === goal.type;
+        const isCompleted = data?.completedArea.find((type) => type === goal.type);
+        const isCurrent = currentArea === goal.type;
 
         return (
           <GoalContainer
