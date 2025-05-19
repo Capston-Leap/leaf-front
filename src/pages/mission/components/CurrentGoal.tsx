@@ -49,7 +49,6 @@ const CurrentGoal = () => {
       <GoalList
         enabled={false}
         init={false}
-        currentAreaType={''}
       />
     </>
   );
