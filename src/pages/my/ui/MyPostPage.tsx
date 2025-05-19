@@ -1,14 +1,21 @@
-import { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import NavBar from '@shared/ui/NavBar.tsx';
-import PlusIcon from '../../../shared/assets/icon/plus-icon';
-import ArrowLeftIcon from '../../../shared/assets/icon/ic-arrow-left-white.svg';
-import SendIcon from '../../../shared/assets/icon/send-icon.svg';
-import TrashIcon from '../../../shared/assets/icon/trash-icon';
-import { createComment, deleteComment } from '@shared/apis/comment';
-import { fetchAllPosts, createPost, getPostDetail, updatePost, deletePost } from '@shared/apis/community';
-import { useTokenStore } from '@shared/store/useTokenStore';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import ArrowLeftIcon from "@icon/ic-arrow-left-white.svg";
+import styled from "styled-components";
+import { useNavigate } from "react-router";
+import {
+  createPost,
+  deletePost,
+  fetchAllPosts,
+  fetchMyPosts,
+  getPostDetail,
+  updatePost,
+} from "@shared/apis/community.ts";
+import TrashIcon from "@icon/trash-icon.tsx";
+import { createComment, deleteComment } from "@shared/apis/comment.ts";
+import SendIcon from "@icon/send-icon.svg";
+import NavBar from "@shared/ui/NavBar.tsx";
+import { useTokenStore } from "@shared/store/useTokenStore.ts";
+import BackToolbar from "@shared/ui/BackToolbar.tsx";
 
 const categories = ['자유', '고민', '정보'];
 
@@ -36,7 +43,7 @@ interface CreatePostResponse {
   content: string;
 }
 
-export const CommunityPage = () => {
+export const MyPostPage = () => {
   const navigate = useNavigate();
   const token = useTokenStore((state) => state.token);
   const [viewMode, setViewMode] = useState<'list' | 'write' | 'detail'>('list');
@@ -64,7 +71,7 @@ export const CommunityPage = () => {
     const loadPosts = async () => {
       try {
         const communityId = 1;
-        const data = await fetchAllPosts(communityId, 1, 10);
+        const data = await fetchMyPosts(communityId, 1, 10);
         setPostList(data.content);
       } catch (error) {
         console.error("게시글 전체 조회 실패", error);
@@ -109,18 +116,27 @@ export const CommunityPage = () => {
       alert('댓글 삭제 중 오류가 발생했습니다.');
     }
   };
+  /*const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("자유");
+  const { data, fetchNextPage, hasNextPage, isLoading } = useMyPostInfoInfinite(1)
+
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, inView]);
+
+  if (isLoading || !data) {
+    return <div>Loading...</div>;
+  }*/
 
   return (
     <Container>
       {viewMode === 'list' && (
         <>
-          <HeaderRow>
-            <Title>커뮤니티</Title>
-            <WriteButton onClick={() => setViewMode('write')}>
-              <PlusIcon color="#111" />
-            </WriteButton>
-          </HeaderRow>
-
+          <BackToolbar title={""} />
           <TabContainer>
             {categories.map(cat => (
               <Tab key={cat} onClick={() => setSelectedCategory(cat)} $isSelected={selectedCategory === cat}>
@@ -337,35 +353,52 @@ export const CommunityPage = () => {
 
       <NavBar />
     </Container>
+    /*<Container>
+      <Header>
+        <BackBtn onClick={() => navigate(-1)}>
+          <img src={ArrowLeftIcon} alt="뒤로가기" width="24" height="24" />
+        </BackBtn>
+        <HeaderTitle>나의 게시글</HeaderTitle>
+      </Header>
+
+      <TabList>
+        {["자유", "고민", "정보"].map((tab) => (
+          <Tab
+            key={tab}
+            $active={activeTab === tab}
+            onClick={() => setActiveTab(tab as "자유" | "고민" | "정보")}
+          >{tab}</Tab>
+        ))}
+        <Underline style={{ transform: `translateX(${["자유", "고민", "정보"].indexOf(activeTab) * 100}%)` }} />
+      </TabList>
+
+      <PostList>
+        {data.pages.map((page) =>
+          page?.content.map((post: PostResponse) => (
+            <PostCard
+              key={post.postId}
+              onClick={() => navigate(`/post/detail/${post.postId}`)}
+            >
+              <CardHeader>
+                <Author>{post.nickname}</Author>
+                <DateText>{post.createdAt}</DateText>
+              </CardHeader>
+              <CardTitle>{post.title}</CardTitle>
+              <CardContent>{post.content}</CardContent>
+              <CardFooter>댓글 {post.commentCount}개</CardFooter>
+            </PostCard>
+          ))
+        )}
+        <div ref={ref}/>
+      </PostList>
+    </Container>*/
   );
-};
-
-
+}
 
 const Container = styled.div`
-  margin-top: 10px;
   padding-bottom: 100px;
+  margin-top: 20px;
   background-color:#f4f4f4;
-`;
-
-const HeaderRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  margin-left: 20px;
-`;
-
-const Title = styled.h2`
-  font-size: 24px;
-  font-weight: bold;
-`;
-
-const WriteButton = styled.button`
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
 `;
 
 const TabContainer = styled.div`
@@ -400,9 +433,9 @@ const Underline = styled.div`
 `;
 
 const PostList = styled.div`
-  padding: 20px;
   display: flex;
   flex-direction: column;
+  padding: 20px;
   gap: 15px;
 `;
 
@@ -448,7 +481,6 @@ const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 10px;
   font-size: 14px;
-  background-color: white;
 `;
 
 const Textarea = styled.textarea`
@@ -648,3 +680,150 @@ const TrashButton = styled.button`
   padding: 0;
   cursor: pointer;
 `;
+
+/*const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+`;
+
+const Header = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  background-color: #F4F4F5;
+`;
+
+const BackBtn = styled.button`
+  position: absolute;
+  left: 16px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+`;
+
+const TabList = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+`;
+
+const Tab = styled.button<{ $active: boolean }>`
+  flex: 1;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: ${({ $active }) => ($active ? '700' : '400')};
+  color: ${({ $active }) => ($active ? '#111' : '#bbb')};
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+`;
+
+const Underline = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: calc(100% / 3);
+  height: 2px;
+  background-color: #111;
+  transition: transform 0.3s ease;
+`;
+
+
+const PostList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const PostCard = styled.div`
+  width: 361px;
+  height: 200px;
+  background-color: #FFFFFF;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+const Author = styled.span`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #A1A1AA;
+`;
+
+const DateText = styled.span`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #A1A1AA;
+`;
+
+
+const CardTitle = styled.h4`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #18181B;
+  margin-bottom: 6px;
+`;
+
+
+const CardContent = styled.p`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: -0.025em;
+  color: #18181B;
+
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+`;
+
+
+const CardFooter = styled.div`
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 140%;
+  letter-spacing: -0.025em;
+  color: #A1A1AA;
+  text-align: right;
+  margin-top: auto;
+`;
+
+const HeaderTitle = styled.h2`
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+`;*/
+
+

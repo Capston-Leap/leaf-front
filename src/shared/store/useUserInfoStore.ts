@@ -16,6 +16,7 @@ export const useUserInfoStore = create<UserInfoStore>()(
       userName: '',
       leapyType: '',
       currentArea: '',
+      email: '',
       setUserName: (userName: string) => set({ userName }),
       setLeapyType: (leapyType: string) => set({ leapyType }),
       setCurrentArea: (currentArea: string) => set({ currentArea }),

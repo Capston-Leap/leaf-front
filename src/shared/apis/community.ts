@@ -16,13 +16,14 @@ export const fetchAllPosts = async (communityId: number, page = 1, size = 10) =>
 
 export const fetchMyPosts = async (
   communityId: number,
-  page = 1,
+  page: number,
   size = 10
 ) => {
   try {
-    const response: AxiosResponse = await axiosInstance.get(`/community/${communityId}/mypost`, {
+    const response = await axiosInstance.get(`/community/${communityId}/mypost`, {
       params: { page, size },
     });
+    console.log(response)
     return response.data;
   } catch (error) {
     console.error("Error fetching my posts:", error);
