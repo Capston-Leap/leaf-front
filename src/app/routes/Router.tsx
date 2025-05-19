@@ -1,10 +1,9 @@
 import { createBrowserRouter } from 'react-router';
-
 import { RootLayout } from '@app/layout';
 import { HomePage } from "@pages/home";
 import { LoginPage, InitPage, SignupPage, OnboardingPage } from "@pages/onboarding";
 import { CommunityPage } from "@pages/community";
-import { MyPage } from "@pages/my";
+import { MyPage, MyPostPage } from "@pages/my";
 import {
   GoalSelectConfirmPage,
   GoalSelectPage, MissionCompleteDetailPage,
@@ -96,7 +95,11 @@ export const router = createBrowserRouter([
       {
         path: 'mission/complete/:missionId',
         element: <MissionCompleteDetailPage />,
-      }
+      },
+      {
+        path: '/my/posts',
+        element: <MyPostPage />,
+      },
     ],
   },
 ]);
