@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   max-width: 440px;
   height: 100vh;
   padding-top: env(safe-area-inset-top);
-  padding-bottom: 100px;
+  padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   background-color: #F4F4F5;

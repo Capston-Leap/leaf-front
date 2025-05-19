@@ -1,46 +1,113 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import NavBar from '@shared/ui/NavBar.tsx';
 import PlusIcon from '../../../shared/assets/icon/plus-icon';
 import ArrowLeftIcon from '../../../shared/assets/icon/ic-arrow-left-white.svg';
 import SendIcon from '../../../shared/assets/icon/send-icon.svg';
 import TrashIcon from '../../../shared/assets/icon/trash-icon';
+import { createComment, deleteComment } from '@shared/apis/comment';
+import { fetchAllPosts, createPost, getPostDetail, updatePost, deletePost } from '@shared/apis/community';
+import { useTokenStore } from '@shared/store/useTokenStore';
+import { useNavigate } from 'react-router-dom';
 
 const categories = ['자유', '고민', '정보'];
 
-const dummyPosts = [
-  { id: 1, author: '리피파', title: '개발 언어를 배우고 싶어요', content: '어쩌구저쩌구...', date: '2024년 5월 17일', comments: 17, category: '자유' },
-  { id: 2, author: '리피파', title: '개발 언어를 배우고 싶어요', content: '어쩌구저쩌구...', date: '2024년 5월 17일', comments: 17, category: '자유' },
-  { id: 3, author: '리피파', title: '개발 언어를 배우고 싶어요', content: '어쩌구저쩌구...', date: '2024년 5월 17일', comments: 17, category: '자유' },
-  { id: 4, author: '고민중', title: '자바스크립트가 너무 어렵네요', content: 'JS 너무 어렵습니다 도와주세요...', date: '2024년 5월 16일', comments: 5, category: '고민' },
-  { id: 5, author: '고민중', title: '자바스크립트가 너무 어렵네요', content: 'JS 너무 어렵습니다 도와주세요...', date: '2024년 5월 16일', comments: 5, category: '고민' },
-  { id: 6, author: '고민중', title: '자바스크립트가 너무 어렵네요', content: 'JS 너무 어렵습니다 도와주세요...', date: '2024년 5월 16일', comments: 5, category: '고민' },
-  { id: 7, author: '정보요정', title: '프론트엔드 공부자료 추천', content: '이 자료 추천합니다~', date: '2024년 5월 15일', comments: 3, category: '정보' },
-  { id: 8, author: '정보요정', title: '프론트엔드 공부자료 추천', content: '이 자료 추천합니다~', date: '2024년 5월 15일', comments: 3, category: '정보' },
-  { id: 9, author: '정보요정', title: '프론트엔드 공부자료 추천', content: '이 자료 추천합니다~', date: '2024년 5월 15일', comments: 3, category: '정보' },
-];
+interface Post {
+  postId: number;
+  nickname: string;
+  createdAt: string;
+  title: string;
+  content: string;
+  commentCount: number;
+  category?: string;
+}
+
+interface Comment {
+  commentId: number;
+  nickname: string;
+  createdAt: string;
+  content: string;
+}
+
+interface CreatePostResponse {
+  message: string;
+  postId: number;
+  title: string;
+  content: string;
+}
 
 export const CommunityPage = () => {
+  const navigate = useNavigate();
+  const token = useTokenStore((state) => state.token);
   const [viewMode, setViewMode] = useState<'list' | 'write' | 'detail'>('list');
   const [selectedCategory, setSelectedCategory] = useState('자유');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [selectedPost, setSelectedPost] = useState<typeof dummyPosts[0] | null>(null);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showPostDeleteModal, setShowPostDeleteModal] = useState(false);
   const [showCommentDeleteModal, setShowCommentDeleteModal] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
+  const [commentList, setCommentList] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [postList, setPostList] = useState<Post[]>([]);
+
+  const [editMode, setEditMode] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+
+  useEffect(() => {
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    const loadPosts = async () => {
+      try {
+        const communityId = 1;
+        const data = await fetchAllPosts(communityId, 1, 10);
+        setPostList(data.content);
+      } catch (error) {
+        console.error("게시글 전체 조회 실패", error);
+      }
+    };
+    loadPosts();
+  }, [token, navigate]);
 
   const selectedIndex = categories.indexOf(selectedCategory);
-  const filteredPosts = dummyPosts.filter(post => post.category === selectedCategory);
+  const filteredPosts = postList;
 
-  const handlePostDelete = () => {
-    setSelectedPost(null);
-    setViewMode('list');
-    setShowPostDeleteModal(false);
+  const handlePostDelete = async () => {
+    if (!selectedPost) return;
+    const communityId = 1;
+    try {
+      await deletePost(communityId, selectedPost.postId);
+      alert('게시글이 삭제되었습니다.');
+      const updatedList = await fetchAllPosts(communityId, 1, 10);
+      setPostList(updatedList.content);
+      setSelectedPost(null);
+      setViewMode('list');
+    } catch (error) {
+      console.error("게시글 삭제 실패", error);
+      alert("게시글 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setShowPostDeleteModal(false);
+    }
   };
 
-  const handleCommentDelete = () => {
-    setShowCommentDeleteModal(false);
-    console.log('댓글 삭제됨');
+  const handleCommentDelete = async (commentId: number) => {
+    if (!selectedPost) return;
+    const communityId = 1;
+    const postId = selectedPost.postId;
+    try {
+      await deleteComment(communityId, postId, commentId);
+      alert('댓글이 삭제되었습니다.');
+      setCommentList(prev => prev.filter(c => c.commentId !== commentId));
+      setCommentToDelete(null);
+      setShowCommentDeleteModal(false);
+    } catch (err) {
+      console.error('댓글 삭제 실패', err);
+      alert('댓글 삭제 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -55,29 +122,52 @@ export const CommunityPage = () => {
           </HeaderRow>
 
           <TabContainer>
-            {categories.map((cat) => (
-              <Tab
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                isSelected={selectedCategory === cat}
-              >
+            {categories.map(cat => (
+              <Tab key={cat} onClick={() => setSelectedCategory(cat)} $isSelected={selectedCategory === cat}>
                 {cat}
               </Tab>
+
             ))}
             <Underline style={{ transform: `translateX(${selectedIndex * 100}%)` }} />
           </TabContainer>
 
           <PostList>
-            {filteredPosts.map((post) => (
-              <PostCard key={post.id} onClick={() => {
-                setSelectedPost(post);
-                setViewMode('detail');
+            {filteredPosts.map(post => (
+              <PostCard key={post.postId} onClick={async () => {
+                const communityId = 1;
+                try {
+                  const detailData = await getPostDetail(communityId, post.postId);
+                  const {
+                    postId,
+                    nickname,
+                    createdAt,
+                    title,
+                    content,
+                    commentCount,
+                    comments
+                  } = detailData;
+
+                  setSelectedPost({
+                    postId,
+                    nickname,
+                    createdAt,
+                    title,
+                    content,
+                    commentCount
+                  });
+
+                  setCommentList(comments.content);
+                  setViewMode('detail');
+                } catch (err) {
+                  console.error("게시글 상세 조회 실패", err);
+                  alert("게시글 상세 정보를 불러오는 데 실패했습니다.");
+                }
               }}>
                 <PostTitle>{post.title}</PostTitle>
                 <PostContent>{post.content}</PostContent>
                 <PostFooter>
-                  <span>{post.author}</span>
-                  <span>{post.date} | 댓글 {post.comments}</span>
+                  <span>{post.nickname}</span>
+                  <span>{post.createdAt} | 댓글 {post.commentCount}</span>
                 </PostFooter>
               </PostCard>
             ))}
@@ -88,49 +178,90 @@ export const CommunityPage = () => {
       {viewMode === 'write' && (
         <WriteContainer>
           <HeaderWrapper>
-            <BackIconButton onClick={() => setViewMode("list")}> <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} /> </BackIconButton>
+            <BackIconButton onClick={() => setViewMode('list')}>
+              <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
+            </BackIconButton>
             <HeaderTitle>게시글 작성</HeaderTitle>
           </HeaderWrapper>
           <Label>제목</Label>
-          <Input placeholder="제목을 작성해 주세요." value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 작성해 주세요." />
           <Label>내용</Label>
-          <Textarea placeholder="내용을 작성해 주세요." value={content} onChange={(e) => setContent(e.target.value)} />
-          <SubmitButton disabled={!title || !content} onClick={() => { setTitle(''); setContent(''); setViewMode('list'); }}>작성 완료</SubmitButton>
+          <Textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="내용을 작성해 주세요." />
+          <SubmitButton
+            disabled={!title || !content}
+            onClick={async () => {
+              const communityId = 1;
+              try {
+                const newPost: CreatePostResponse = await createPost(communityId, title, content);
+                alert(newPost.message || "게시글이 등록되었습니다.");
+                const updatedList = await fetchAllPosts(communityId, 1, 10);
+                setPostList(updatedList.content);
+                setTitle('');
+                setContent('');
+                setViewMode('list');
+              } catch (err: any) {
+                console.error("게시글 등록 실패", err);
+                alert(err.message || "게시글 등록 중 오류가 발생했습니다.");
+              }
+            }}
+          >
+            작성 완료
+          </SubmitButton>
+
         </WriteContainer>
       )}
 
       {viewMode === 'detail' && selectedPost && (
         <>
           <HeaderWrapper>
-            <BackIconButton onClick={() => { setSelectedPost(null); setViewMode('list'); }}> <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} /> </BackIconButton>
-            <TrashButton onClick={() => setShowPostDeleteModal(true)}> <TrashIcon color="#111" /> </TrashButton>
+            <BackIconButton onClick={() => { setSelectedPost(null); setViewMode('list'); }}>
+              <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
+            </BackIconButton>
+            <TrashButton onClick={() => setShowPostDeleteModal(true)}>
+              <TrashIcon color="#111" />
+            </TrashButton>
           </HeaderWrapper>
 
           <PostTitle>{selectedPost.title}</PostTitle>
-          <PostSubInfo>{selectedPost.author} · {selectedPost.date}</PostSubInfo>
+          <PostSubInfo>{selectedPost.nickname} · {selectedPost.createdAt}</PostSubInfo>
           <PostContent>{selectedPost.content}</PostContent>
 
-          <CommentCount>댓글 {selectedPost.comments}개</CommentCount>
+          <CommentCount>댓글 {commentList.length}개</CommentCount>
 
-          <CommentItem>
-            <CommentHeader>
-              <CommentMeta><span>리피파</span> <span>2024년 5월 17일</span></CommentMeta>
-              <DeleteButton onClick={() => setShowCommentDeleteModal(true)}>삭제</DeleteButton>
-            </CommentHeader>
-            <CommentText>어쩌구저쩌구어쩌구어쩌구</CommentText>
-          </CommentItem>
-
-          <CommentItem>
-            <CommentHeader>
-              <CommentMeta><span>클클클</span> <span>2024년 5월 17일</span></CommentMeta>
-              <DeleteButton onClick={() => setShowCommentDeleteModal(true)}>삭제</DeleteButton>
-            </CommentHeader>
-            <CommentText>어쩌구저쩌구어쩌구어쩌구</CommentText>
-          </CommentItem>
+          {commentList.map(comment => (
+            <CommentItem key={comment.commentId}>
+              <CommentHeader>
+                <CommentMeta><span>{comment.nickname}</span> <span>{comment.createdAt}</span></CommentMeta>
+                <DeleteButton onClick={() => {
+                  setCommentToDelete(comment.commentId);
+                  setShowCommentDeleteModal(true);
+                }}>삭제</DeleteButton>
+              </CommentHeader>
+              <CommentText>{comment.content}</CommentText>
+            </CommentItem>
+          ))}
 
           <CommentInputWrapper>
-            <StyledCommentInput placeholder="댓글을 입력하세요." />
-            <SendButtonInside><img src={SendIcon} alt="전송" /></SendButtonInside>
+            <StyledCommentInput
+              placeholder="댓글을 입력하세요."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <SendButtonInside onClick={async () => {
+              if (!newComment.trim()) return;
+              const communityId = 1;
+              const postId = selectedPost.postId;
+              try {
+                const res = await createComment(communityId, postId, newComment);
+                setCommentList(prev => [...prev, res]);
+                setNewComment('');
+              } catch (err) {
+                console.error('댓글 등록 실패', err);
+                alert('댓글 등록에 실패했습니다.');
+              }
+            }}>
+              <img src={SendIcon} alt="전송" />
+            </SendButtonInside>
           </CommentInputWrapper>
 
           {showPostDeleteModal && (
@@ -145,13 +276,16 @@ export const CommunityPage = () => {
             </ModalOverlay>
           )}
 
-          {showCommentDeleteModal && (
+          {showCommentDeleteModal && commentToDelete !== null && (
             <ModalOverlay>
               <ModalBox>
                 <ModalText>댓글을 삭제하시겠습니까?</ModalText>
                 <ModalButtons>
-                  <ModalButton className="cancel" onClick={() => setShowCommentDeleteModal(false)}>아니요</ModalButton>
-                  <ModalButton className="confirm" onClick={handleCommentDelete}>네</ModalButton>
+                  <ModalButton className="cancel" onClick={() => {
+                    setShowCommentDeleteModal(false);
+                    setCommentToDelete(null);
+                  }}>아니요</ModalButton>
+                  <ModalButton className="confirm" onClick={() => handleCommentDelete(commentToDelete)}>네</ModalButton>
                 </ModalButtons>
               </ModalBox>
             </ModalOverlay>
@@ -159,10 +293,54 @@ export const CommunityPage = () => {
         </>
       )}
 
+      {editMode && selectedPost ? (
+        <WriteContainer>
+          <HeaderWrapper>
+            <BackIconButton onClick={() => setEditMode(false)}>
+              <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
+            </BackIconButton>
+            <HeaderTitle>게시글 수정</HeaderTitle>
+          </HeaderWrapper>
+
+          <Label>제목</Label>
+          <Input
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            placeholder="제목을 입력하세요"
+          />
+          <Label>내용</Label>
+          <Textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            placeholder="내용을 입력하세요"
+          />
+          <SubmitButton
+            disabled={!editTitle || !editContent}
+            onClick={async () => {
+              const communityId = 1;
+              try {
+                await updatePost(communityId, selectedPost.postId, editTitle, editContent);
+                alert('게시글이 수정되었습니다.');
+                const updatedList = await fetchAllPosts(communityId, 1, 10);
+                setPostList(updatedList.content);
+                setSelectedPost({ ...selectedPost, title: editTitle, content: editContent });
+                setEditMode(false);
+              } catch (error) {
+                console.error("게시글 수정 실패", error);
+                alert("게시글 수정 중 오류가 발생했습니다.");
+              }
+            }}
+          >
+            수정 완료
+          </SubmitButton>
+        </WriteContainer>
+      ) : null}
+
       <NavBar />
     </Container>
   );
 };
+
 
 
 const Container = styled.div`
@@ -198,12 +376,12 @@ const TabContainer = styled.div`
   border-bottom: 1px solid #e0e0e0;
 `;
 
-const Tab = styled.button<{ isSelected: boolean }>`
+const Tab = styled.button<{ $isSelected: boolean }>`
   flex: 1;
   padding: 12px 0;
   font-size: 15px;
-  font-weight: ${(props) => (props.isSelected ? '700' : '400')};
-  color: ${(props) => (props.isSelected ? '#000000' : '#A1A1AA')};
+  font-weight: ${(props) => (props.$isSelected ? '700' : '400')};
+  color: ${(props) => (props.$isSelected ? '#000000' : '#A1A1AA')};
   border: none;
   background: transparent;
   cursor: pointer;
