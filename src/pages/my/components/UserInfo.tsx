@@ -159,7 +159,6 @@ const ActionList = styled.div`
 `;
 
 const ActionItem = styled.button`
-  width: 361px;
   height: 69px;
   border: none;
   border-radius: 30px;
