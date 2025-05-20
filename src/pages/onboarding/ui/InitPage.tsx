@@ -3,9 +3,19 @@ import styled from "styled-components";
 import CustomButton from "@shared/ui/CustomButton.tsx";
 import IcLoginBackground from "@icon/ic-login-background.svg";
 import { useNavigate } from "react-router-dom";
+import { useTokenStore } from "@shared/store/useTokenStore.ts";
+import { useEffect } from "react";
 
 export const InitPage = () => {
   const navigate = useNavigate();
+  const { token } = useTokenStore();
+  console.log(token);
+
+  useEffect(() => {
+    if (token) {
+      navigate('/home');
+    }
+  }, [navigate, token]);
 
   const handleLogin = () => {
     navigate('/login');
