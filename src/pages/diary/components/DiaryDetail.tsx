@@ -4,8 +4,12 @@ import { useGetDiaryDetail } from "@diary/feature/hooks/query/useGetDiaryDetail.
 import { EmotionImages } from "@shared/types/response/diary.ts";
 import EmotionChart from "@diary/components/EmotionChart.tsx";
 
-const DiaryDetail = () => {
-  const { data, isLoading, isError } = useGetDiaryDetail(7);
+interface DiaryDetailProps {
+  diaryId: number;
+}
+
+const DiaryDetail = ({ diaryId }: DiaryDetailProps) => {
+  const { data, isLoading, isError } = useGetDiaryDetail(diaryId);
 
   if (isLoading || !data) {
     return <div>Loading...</div>;
@@ -43,12 +47,12 @@ const InnerContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
+
   .bold-title {
     font: ${({ theme }) => theme.fonts.body_sb_18px};
     color: ${({ theme }) => theme.colors.gray900};
   }
-  
+
   .detail-description {
     margin-top: 5px;
     white-space: pre-wrap;

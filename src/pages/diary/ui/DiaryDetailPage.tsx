@@ -7,15 +7,13 @@ import { useParams } from "react-router-dom";
 export const DiaryDetailPage = () => {
   const location = useLocation();
   const { id } = useParams();
-  const { year, month } = location.state as { year: number; month: number; };
-
-  console.log(id)
+  const { year, month, diaryId } = location.state as { year: number; month: number; diaryId: number; };
 
   return (
     <DiaryDetailContainer>
       <BackToolbar title={`${year}년 ${month + 1}월 ${id}일`} />
       <DiaryDetailInner>
-        <DiaryDetail />
+        <DiaryDetail diaryId={diaryId} />
       </DiaryDetailInner>
     </DiaryDetailContainer>
   );

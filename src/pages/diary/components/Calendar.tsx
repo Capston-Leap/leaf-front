@@ -20,8 +20,11 @@ const Calendar = () => {
   }
 
   const recordMap: Record<string, string> = {};
-  data.forEach(({ date, category }) => {
+  // 📍 날짜 -> diaryId 매핑 추가
+  const diaryMap: Record<string, number> = {};
+  data.forEach(({ date, diaryId, category }) => {
     recordMap[date] = category;
+    diaryMap[new Date(date).getDate()] = diaryId;
   });
 
   const days = getCalendarCells(year, month, recordMap);
@@ -43,8 +46,8 @@ const Calendar = () => {
           <Day key={index}>
             {cell.date ? (
               <>
-                {cell.image ? (
-                  <EmojiImg src={cell.image} alt="emotion" onClick={() => navigate(`/diary/${cell.date?.getDate()}`, { state: { year, month } })} />
+                {cell.image && cell.date ? (
+                  <EmojiImg src={cell.image} alt="emotion" onClick={() => navigate(`/diary/${cell.date?.getDate()}`, { state: { year, month, diaryId: diaryMap[cell.date!.getDate()] } })} />
                 ) : (
                   <Placeholder />
                 )}
@@ -59,7 +62,7 @@ const Calendar = () => {
       <BottomCard>
         <Title>{`${!written ? "오늘의 일기를 작성하셨나요?" : "오늘의 일기를 작성하셨네요!"}`}</Title>
         <Description>{`${!written ? "일기를 작성하고 하루의 감정을 분석해 보세요" : "오늘 나의 상태를 자세히 확인해 보세요!"}`}</Description>
-        <Button onClick={() => written ? navigate(`/diary/${new Date().getDate()}`, { state: { year, month } }) : navigate('/diary/write')}>{`${!written ? "일기 작성하기" : "확인하기"}`}</Button>
+        <Button onClick={() => written ? navigate(`/diary/${new Date().getDate()}`, { state: { year, month, diaryId: diaryMap[new Date().getDate()] } }) : navigate('/diary/write')}>{`${!written ? "일기 작성하기" : "확인하기"}`}</Button>
       </BottomCard>
     </Wrapper>
   );
