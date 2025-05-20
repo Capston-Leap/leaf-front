@@ -9,7 +9,6 @@ import { useEffect } from "react";
 export const InitPage = () => {
   const navigate = useNavigate();
   const { token } = useTokenStore();
-  console.log(token);
 
   useEffect(() => {
     if (token) {
