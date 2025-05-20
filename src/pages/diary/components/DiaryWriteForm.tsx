@@ -6,13 +6,14 @@ import { DiaryWriteSchema, DiaryWriteSchemaType } from "@diary/feature/schema/di
 import RecordInput from "@diary/components/RecordInput.tsx";
 import { useWriteDiary } from "@diary/feature/hooks/mutate/useWriteDiary.ts";
 import { DiaryCreateRequest } from "@shared/types/request/diary.ts";
+import { MoonLoader } from "react-spinners";
 
 const DiaryWriteForm = () => {
   const { register, handleSubmit, formState: { errors, isValid } } = useForm<DiaryWriteSchemaType>({
     resolver: zodResolver(DiaryWriteSchema),
     mode: 'onChange',
   });
-  const { mutate } = useWriteDiary();
+  const { mutate, isPending } = useWriteDiary();
 
   const onSubmit = handleSubmit((data: DiaryWriteSchemaType) => {
     const request: DiaryCreateRequest = {
@@ -21,6 +22,14 @@ const DiaryWriteForm = () => {
     };
     mutate(request);
   });
+
+  if (isPending) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <MoonLoader color={"#59D9CC"} />
+      </div>
+    );
+  }
 
   return (
     <InputFormWrapper>
