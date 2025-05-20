@@ -16,6 +16,7 @@ import SendIcon from "@icon/send-icon.svg";
 import NavBar from "@shared/ui/NavBar.tsx";
 import { useTokenStore } from "@shared/store/useTokenStore.ts";
 import BackToolbar from "@shared/ui/BackToolbar.tsx";
+import { useUserInfo } from "@shared/hooks/query/useUserInfo.ts";
 
 const categories = ['자유', '고민', '정보'];
 
@@ -44,6 +45,7 @@ interface CreatePostResponse {
 }
 
 export const MyPostPage = () => {
+  const {data, isLoading, isError} = useUserInfo();
   const navigate = useNavigate();
   const token = useTokenStore((state) => state.token);
   const [viewMode, setViewMode] = useState<'list' | 'write' | 'detail'>('list');
@@ -131,6 +133,14 @@ export const MyPostPage = () => {
   if (isLoading || !data) {
     return <div>Loading...</div>;
   }*/
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading data</div>;
+  }
 
   return (
     <Container>
@@ -252,10 +262,11 @@ export const MyPostPage = () => {
               <CommentItem key={comment.commentId}>
                 <CommentHeader>
                   <CommentMeta><span>{comment.nickname}</span> <span>{comment.createdAt}</span></CommentMeta>
-                  <DeleteButton onClick={() => {
+                  {(comment.nickname === data?.nickname) && <DeleteButton onClick={() => {
                     setCommentToDelete(comment.commentId);
                     setShowCommentDeleteModal(true);
                   }}>삭제</DeleteButton>
+                  }
                 </CommentHeader>
                 <CommentText>{comment.content}</CommentText>
               </CommentItem>

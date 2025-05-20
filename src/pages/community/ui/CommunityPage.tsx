@@ -9,6 +9,7 @@ import { createComment, deleteComment } from '@shared/apis/comment';
 import { fetchAllPosts, createPost, getPostDetail, updatePost, deletePost } from '@shared/apis/community';
 import { useTokenStore } from '@shared/store/useTokenStore';
 import { useNavigate } from 'react-router-dom';
+import { useUserInfo } from "@shared/hooks/query/useUserInfo.ts";
 
 const categories = ['자유', '고민', '정보'];
 
@@ -37,6 +38,7 @@ interface CreatePostResponse {
 }
 
 export const CommunityPage = () => {
+  const { data, isLoading, isError } = useUserInfo();
   const navigate = useNavigate();
   const token = useTokenStore((state) => state.token);
   const [viewMode, setViewMode] = useState<'list' | 'write' | 'detail'>('list');
@@ -109,6 +111,14 @@ export const CommunityPage = () => {
       alert('댓글 삭제 중 오류가 발생했습니다.');
     }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading data</div>;
+  }
 
   return (
     <Container>
@@ -219,52 +229,53 @@ export const CommunityPage = () => {
             }}>
               <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
             </BackIconButton>
-            <TrashButton onClick={() => setShowPostDeleteModal(true)}>
+            {(data?.nickname === selectedPost.nickname) && <TrashButton onClick={() => setShowPostDeleteModal(true)}>
               <TrashIcon color="#111" />
-            </TrashButton>
+            </TrashButton>}
           </HeaderWrapper>
           <div style={{ padding: '16px' }}>
-          <PostTitle>{selectedPost.title}</PostTitle>
-          <PostSubInfo>{selectedPost.nickname} · {selectedPost.createdAt}</PostSubInfo>
-          <PostContent>{selectedPost.content}</PostContent>
+            <PostTitle>{selectedPost.title}</PostTitle>
+            <PostSubInfo>{selectedPost.nickname} · {selectedPost.createdAt}</PostSubInfo>
+            <PostContent>{selectedPost.content}</PostContent>
 
-          <CommentCount>댓글 {commentList.length}개</CommentCount>
+            <CommentCount>댓글 {commentList.length}개</CommentCount>
 
-          {commentList.map(comment => (
-            <CommentItem key={comment.commentId}>
-              <CommentHeader>
-                <CommentMeta><span>{comment.nickname}</span> <span>{comment.createdAt}</span></CommentMeta>
-                <DeleteButton onClick={() => {
-                  setCommentToDelete(comment.commentId);
-                  setShowCommentDeleteModal(true);
-                }}>삭제</DeleteButton>
-              </CommentHeader>
-              <CommentText>{comment.content}</CommentText>
-            </CommentItem>
-          ))}
+            {commentList.map(comment => (
+              <CommentItem key={comment.commentId}>
+                <CommentHeader>
+                  <CommentMeta><span>{comment.nickname}</span> <span>{comment.createdAt}</span></CommentMeta>
+                  {(comment.nickname === data?.nickname) && <DeleteButton onClick={() => {
+                    setCommentToDelete(comment.commentId);
+                    setShowCommentDeleteModal(true);
+                  }}>삭제</DeleteButton>
+                  }
+                </CommentHeader>
+                <CommentText>{comment.content}</CommentText>
+              </CommentItem>
+            ))}
 
-          <CommentInputWrapper>
-            <StyledCommentInput
-              placeholder="댓글을 입력하세요."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <SendButtonInside onClick={async () => {
-              if (!newComment.trim()) return;
-              const communityId = selectedIndex + 1;
-              const postId = selectedPost.postId;
-              try {
-                const res = await createComment(communityId, postId, newComment);
-                setCommentList(prev => [...prev, res]);
-                setNewComment('');
-              } catch ( err ) {
-                console.error('댓글 등록 실패', err);
-                alert('댓글 등록에 실패했습니다.');
-              }
-            }}>
-              <img src={SendIcon} alt="전송" />
-            </SendButtonInside>
-          </CommentInputWrapper>
+            <CommentInputWrapper>
+              <StyledCommentInput
+                placeholder="댓글을 입력하세요."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <SendButtonInside onClick={async () => {
+                if (!newComment.trim()) return;
+                const communityId = selectedIndex + 1;
+                const postId = selectedPost.postId;
+                try {
+                  const res = await createComment(communityId, postId, newComment);
+                  setCommentList(prev => [...prev, res]);
+                  setNewComment('');
+                } catch ( err ) {
+                  console.error('댓글 등록 실패', err);
+                  alert('댓글 등록에 실패했습니다.');
+                }
+              }}>
+                <img src={SendIcon} alt="전송" />
+              </SendButtonInside>
+            </CommentInputWrapper>
           </div>
           {showPostDeleteModal && (
             <ModalOverlay>
@@ -450,6 +461,7 @@ const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 10px;
   font-size: 14px;
+  color: black;
   background-color: white;
 `;
 
@@ -462,6 +474,7 @@ const Textarea = styled.textarea`
   font-size: 14px;
   background-color: #fff;
   line-height: 1.6;
+  color: black;
 `;
 
 

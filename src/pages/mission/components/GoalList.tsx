@@ -6,7 +6,7 @@ import clean from '@img/clean.png';
 import DoneCard from "@mission/components/DoneCard.tsx";
 import { useNavigate } from "react-router";
 import { useGetCompletedArea } from "@mission/feature/hooks/query/useGetCompletedArea.ts";
-import { useUserInfoStore } from "@shared/store/useUserInfoStore.ts";
+import { useUserInfo } from "@shared/hooks/query/useUserInfo.ts";
 
 const goalList = [
   {
@@ -43,7 +43,7 @@ interface GoalListProps {
 const GoalList = ({ enabled, init }: GoalListProps) => {
   const navigate = useNavigate();
   const { data, isLoading, isError } = useGetCompletedArea();
-  const { currentArea } = useUserInfoStore();
+  const { data: userInfo, isLoading: isLoadingUserInfo, isError: isErrorUserInfo } = useUserInfo();
 
   const handleNavigate = (id: string) => {
     console.log(id);
@@ -55,13 +55,15 @@ const GoalList = ({ enabled, init }: GoalListProps) => {
     navigate('/goal/confirm', { state: { goal } });
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingUserInfo) {
     return <div>Loading...</div>;
   }
 
-  if (isError) {
+  if (isError || isErrorUserInfo) {
     return <div>Error loading data</div>;
   }
+
+  const currentArea = userInfo?.missionType
 
   return (
     <GoalListContainer>

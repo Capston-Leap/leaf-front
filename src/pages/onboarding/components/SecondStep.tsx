@@ -1,14 +1,14 @@
 import styled from "styled-components";
 import Loader from "@onboarding/components/Loader.tsx";
 import { useEffect } from "react";
-import { useUserInfoStore } from "@shared/store/useUserInfoStore.ts";
+import { useUserInfo } from "@shared/hooks/query/useUserInfo.ts";
 
 interface SecondStepProps {
   handleNext: () => void;
 }
 
 const SecondStep = ({ handleNext }: SecondStepProps) => {
-  const { userName } = useUserInfoStore();
+  const { data, isLoading } = useUserInfo();
 
   useEffect(() => {
     setTimeout(() => {
@@ -16,9 +16,11 @@ const SecondStep = ({ handleNext }: SecondStepProps) => {
     }, 5000);
   });
 
+  if (isLoading) return <div>로딩중...</div>;
+
   return (
     <ContentContainer style={{ justifyContent: 'space-between' }}>
-      <p className="loader-text">{`${userName ? userName : "사용자"}님과 어울리는\n리피를 생성해드릴게요!`}</p>
+      <p className="loader-text">{`${data?.name ? data.name : "사용자"}님과 어울리는\n리피를 생성해드릴게요!`}</p>
       <div style={{ width: '100%', height: '44px' }} />
       <Loader />
       <div style={{ width: '100%', height: '44px' }} />
