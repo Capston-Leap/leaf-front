@@ -1,5 +1,10 @@
 import { axiosInstance } from "@shared/apis/axios-instance.ts";
-import { ChatbotSettingRequest, LoginRequest, RegisterUserRequest } from "@shared/types/request/user.ts";
+import {
+  ChatbotSettingRequest,
+  LoginRequest,
+  RegisterUserRequest,
+  VerifyIdRequest,
+} from "@shared/types/request/user.ts";
 import { AxiosResponse } from "axios";
 import { ChatbotSettingResponse, UserResponse } from "@shared/types/response/user.ts";
 
@@ -37,4 +42,14 @@ export const patchChatbotSetting = async (request: ChatbotSettingRequest) => {
   } catch ( error ) {
     console.error("Failed to patch chatbot setting:", error);
   }
+}
+
+export const verifyLoginId = async (request: VerifyIdRequest) => {
+  try {
+    const response: AxiosResponse = await axiosInstance.post("/user/register/verify", request)
+    return response;
+  } catch ( error ) {
+    console.error("Failed to verify login ID:", error);
+  }
+
 }

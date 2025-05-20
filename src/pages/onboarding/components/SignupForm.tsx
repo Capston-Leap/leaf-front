@@ -5,13 +5,28 @@ import { RegisterSchema, RegisterSchemaType } from "@onboarding/feature/schema/r
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRegisterMember } from "@onboarding/feature/hooks/mutate/useRegisterMember.ts";
 import { RegisterUserRequest } from "@shared/types/request/user.ts";
+import { useVerifyLoginId } from "@onboarding/feature/hooks/mutate/useVerifyLoginId.ts";
+import { useState } from "react";
 
 const SignupForm = () => {
   const { mutate } = useRegisterMember();
-  const { register, handleSubmit } = useForm<RegisterSchemaType>({
+  const [visible, setVisible] = useState(false);
+  const { mutate: mutateVerifyLoginId, data: verifyLoginResponse } = useVerifyLoginId();
+  const { register, handleSubmit, getValues } = useForm<RegisterSchemaType>({
     resolver: zodResolver(RegisterSchema),
     mode: 'onChange',
   })
+
+  const handleCheckDuplicate = () => {
+      const loginId = getValues?.("loginId");
+      if (loginId) {
+        setVisible(true);
+        mutateVerifyLoginId(loginId);
+      }
+  }
+
+  const isValid = verifyLoginResponse?.status === 200
+
   return (
     <FormContainer onSubmit={handleSubmit((data: RegisterSchemaType) => {
       const { loginId, password, confirmPassword, name, nickname, birth } = data;
@@ -28,7 +43,19 @@ const SignupForm = () => {
       }
       mutate(registerData)
     })}>
-      <CustomInput<RegisterSchemaType> label="아이디" type="text" checkbox={true} placeholder="아이디를 입력해 주세요" register={register} name="loginId" />
+
+      <CustomInput<RegisterSchemaType>
+        label="아이디"
+        type="text"
+        checkbox={true}
+        placeholder="아이디를 입력해 주세요"
+        register={register}
+        name="loginId"
+        getValues={getValues}
+        isValid={isValid}
+        handleClick={handleCheckDuplicate}
+        message={verifyLoginResponse?.status === 200 ? "사용 가능한 아이디입니다." : "중복된 아이디입니다."}
+        visible={visible} />
       <CustomInput<RegisterSchemaType> label="비밀번호" type="password" placeholder="비밀번호를 입력해 주세요" register={register} name="password" />
       <CustomInput<RegisterSchemaType> label="비밀번호 확인" type="password" placeholder="비밀번호를 다시 입력해 주세요" register={register} name="confirmPassword" />
       <CustomInput<RegisterSchemaType> label="이름" type="text" placeholder="이름을 입력해 주세요" register={register} name="name" />

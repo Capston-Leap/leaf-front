@@ -16,3 +16,7 @@ export interface ChatbotSettingRequest {
   gender: string;
   character: string;
 }
+
+export interface VerifyIdRequest {
+  loginId: string;
+}

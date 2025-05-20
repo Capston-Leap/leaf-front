@@ -25,3 +25,8 @@ export interface MyPAgeResponse {
   completedMissionCount: number;
   myPostCount: number;
 }
+
+export interface VerifyIdResponse {
+  loginId: string;
+  message: string;
+}

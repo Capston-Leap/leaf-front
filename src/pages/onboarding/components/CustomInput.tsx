@@ -14,14 +14,19 @@ interface CustomInputProps<T extends RegisterSchemaType | LoginSchemaType> {
   watch?: UseFormWatch<T>;
   setValue?: UseFormSetValue<T>;
   getValues?: UseFormGetValues<T>;
+  isValid?: boolean;
+  message?: string;
+  handleClick?: () => void;
+  visible?: boolean;
 }
 
-const CustomInput = <T extends RegisterSchemaType | LoginSchemaType>({ label, type, required, placeholder, checkbox, name, register }: CustomInputProps<T>) => {
+const CustomInput = <T extends RegisterSchemaType | LoginSchemaType>({ label, type, required, placeholder, checkbox, name, register, isValid, message, handleClick, visible }: CustomInputProps<T>) => {
   return (
     <CustomInputContainer>
       <Label htmlFor={type}>{label}</Label>
       <Input type={type} placeholder={placeholder} required={required} {...register(name)} />
-      {checkbox ? <CheckButton $isValid={true} onClick={() => null}>중복확인</CheckButton> : null}
+      {<ErrorMessage style={{ visibility: visible ? "visible" : "hidden" }} $isValid={isValid !== undefined && isValid}>{message}</ErrorMessage>}
+      {checkbox ? <CheckButton $isValid={true} onClick={handleClick}>중복확인</CheckButton> : null}
     </CustomInputContainer>
   )
 }
@@ -31,7 +36,6 @@ export default CustomInput
 const CustomInputContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px
 `;
 
 const Label = styled.label`
@@ -47,6 +51,7 @@ const Input = styled.input`
   font: ${({ theme }) => theme.fonts.body_m_14px};
   outline: none;
   color: black;
+  margin-top: 10px;
 `;
 
 const CheckButton = styled.button<{ $isValid: boolean }>`
@@ -58,4 +63,10 @@ const CheckButton = styled.button<{ $isValid: boolean }>`
   font: ${({ theme }) => theme.fonts.body_m_14px};
   background-color: ${({ $isValid, theme }) =>
     $isValid ? theme.colors.primary : theme.colors.gray300};
+`
+
+const ErrorMessage = styled.span<{ $isValid: boolean }>`
+  font: ${({ theme }) => theme.fonts.body_m_12px};
+  color: ${({ $isValid, theme }) => $isValid ? theme.colors.primary : "#FF0000"};
+  height: 1rem;
 `
