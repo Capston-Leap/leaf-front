@@ -25,7 +25,7 @@ export const deleteComment = async (
 ) => {
   try {
     const response: AxiosResponse = await axiosInstance.delete(
-      `/community/${communityId}/${postId}/comment/${commentId}`
+      `/community/${communityId}/${postId}/${commentId}`
     );
     return response.data;
   } catch (error) {
