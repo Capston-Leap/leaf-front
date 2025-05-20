@@ -54,6 +54,7 @@ export const CommunityPage = () => {
   const [editMode, setEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
+  const selectedIndex = categories.indexOf(selectedCategory);
 
   useEffect(() => {
     if (!token) {
@@ -63,22 +64,21 @@ export const CommunityPage = () => {
     }
     const loadPosts = async () => {
       try {
-        const communityId = 1;
+        const communityId = selectedIndex + 1;
         const data = await fetchAllPosts(communityId, 1, 10);
         setPostList(data.content);
-      } catch (error) {
+      } catch ( error ) {
         console.error("게시글 전체 조회 실패", error);
       }
     };
     loadPosts();
-  }, [token, navigate]);
+  }, [token, navigate, selectedIndex]);
 
-  const selectedIndex = categories.indexOf(selectedCategory);
   const filteredPosts = postList;
 
   const handlePostDelete = async () => {
     if (!selectedPost) return;
-    const communityId = 1;
+    const communityId = selectedIndex + 1;
     try {
       await deletePost(communityId, selectedPost.postId);
       alert('게시글이 삭제되었습니다.');
@@ -86,7 +86,7 @@ export const CommunityPage = () => {
       setPostList(updatedList.content);
       setSelectedPost(null);
       setViewMode('list');
-    } catch (error) {
+    } catch ( error ) {
       console.error("게시글 삭제 실패", error);
       alert("게시글 삭제 중 오류가 발생했습니다.");
     } finally {
@@ -96,7 +96,7 @@ export const CommunityPage = () => {
 
   const handleCommentDelete = async (commentId: number) => {
     if (!selectedPost) return;
-    const communityId = 1;
+    const communityId = selectedIndex + 1;
     const postId = selectedPost.postId;
     try {
       await deleteComment(communityId, postId, commentId);
@@ -104,7 +104,7 @@ export const CommunityPage = () => {
       setCommentList(prev => prev.filter(c => c.commentId !== commentId));
       setCommentToDelete(null);
       setShowCommentDeleteModal(false);
-    } catch (err) {
+    } catch ( err ) {
       console.error('댓글 삭제 실패', err);
       alert('댓글 삭제 중 오류가 발생했습니다.');
     }
@@ -134,7 +134,7 @@ export const CommunityPage = () => {
           <PostList>
             {filteredPosts.map(post => (
               <PostCard key={post.postId} onClick={async () => {
-                const communityId = 1;
+                const communityId = selectedIndex + 1;
                 try {
                   const detailData = await getPostDetail(communityId, post.postId);
                   const {
@@ -144,7 +144,7 @@ export const CommunityPage = () => {
                     title,
                     content,
                     commentCount,
-                    comments
+                    comments,
                   } = detailData;
 
                   setSelectedPost({
@@ -153,12 +153,12 @@ export const CommunityPage = () => {
                     createdAt,
                     title,
                     content,
-                    commentCount
+                    commentCount,
                   });
 
                   setCommentList(comments.content);
                   setViewMode('detail');
-                } catch (err) {
+                } catch ( err ) {
                   console.error("게시글 상세 조회 실패", err);
                   alert("게시글 상세 정보를 불러오는 데 실패했습니다.");
                 }
@@ -190,7 +190,7 @@ export const CommunityPage = () => {
           <SubmitButton
             disabled={!title || !content}
             onClick={async () => {
-              const communityId = 1;
+              const communityId = selectedIndex + 1;
               try {
                 const newPost: CreatePostResponse = await createPost(communityId, title, content);
                 alert(newPost.message || "게시글이 등록되었습니다.");
@@ -199,7 +199,7 @@ export const CommunityPage = () => {
                 setTitle('');
                 setContent('');
                 setViewMode('list');
-              } catch (err) {
+              } catch ( err ) {
                 console.error("게시글 등록 실패", err);
               }
             }}
@@ -213,14 +213,17 @@ export const CommunityPage = () => {
       {viewMode === 'detail' && selectedPost && (
         <>
           <HeaderWrapper>
-            <BackIconButton onClick={() => { setSelectedPost(null); setViewMode('list'); }}>
+            <BackIconButton onClick={() => {
+              setSelectedPost(null);
+              setViewMode('list');
+            }}>
               <img src={ArrowLeftIcon} alt="뒤로가기" width={24} height={24} />
             </BackIconButton>
             <TrashButton onClick={() => setShowPostDeleteModal(true)}>
               <TrashIcon color="#111" />
             </TrashButton>
           </HeaderWrapper>
-
+          <div style={{ padding: '16px' }}>
           <PostTitle>{selectedPost.title}</PostTitle>
           <PostSubInfo>{selectedPost.nickname} · {selectedPost.createdAt}</PostSubInfo>
           <PostContent>{selectedPost.content}</PostContent>
@@ -248,13 +251,13 @@ export const CommunityPage = () => {
             />
             <SendButtonInside onClick={async () => {
               if (!newComment.trim()) return;
-              const communityId = 1;
+              const communityId = selectedIndex + 1;
               const postId = selectedPost.postId;
               try {
                 const res = await createComment(communityId, postId, newComment);
                 setCommentList(prev => [...prev, res]);
                 setNewComment('');
-              } catch (err) {
+              } catch ( err ) {
                 console.error('댓글 등록 실패', err);
                 alert('댓글 등록에 실패했습니다.');
               }
@@ -262,7 +265,7 @@ export const CommunityPage = () => {
               <img src={SendIcon} alt="전송" />
             </SendButtonInside>
           </CommentInputWrapper>
-
+          </div>
           {showPostDeleteModal && (
             <ModalOverlay>
               <ModalBox>
@@ -316,7 +319,7 @@ export const CommunityPage = () => {
           <SubmitButton
             disabled={!editTitle || !editContent}
             onClick={async () => {
-              const communityId = 1;
+              const communityId = selectedIndex + 1;
               try {
                 await updatePost(communityId, selectedPost.postId, editTitle, editContent);
                 alert('게시글이 수정되었습니다.');
@@ -324,7 +327,7 @@ export const CommunityPage = () => {
                 setPostList(updatedList.content);
                 setSelectedPost({ ...selectedPost, title: editTitle, content: editContent });
                 setEditMode(false);
-              } catch (error) {
+              } catch ( error ) {
                 console.error("게시글 수정 실패", error);
                 alert("게시글 수정 중 오류가 발생했습니다.");
               }
@@ -341,11 +344,10 @@ export const CommunityPage = () => {
 };
 
 
-
 const Container = styled.div`
   margin-top: 10px;
   padding-bottom: 100px;
-  background-color:#f4f4f4;
+  background-color: #f4f4f4;
 `;
 
 const HeaderRow = styled.div`
@@ -521,8 +523,8 @@ const CommentMeta = styled.div`
 
 const CommentText = styled.div`
   font-size: 14px;
-  font-weight: 500;   
-  color: #222;        
+  font-weight: 500;
+  color: #222;
   margin-top: 4px;
   line-height: 1.6;
 `;
@@ -557,7 +559,7 @@ const CommentInputWrapper = styled.div`
 
 const StyledCommentInput = styled.input`
   width: 100%;
-  padding: 12px 42px 12px 16px;  // 아이콘 공간 확보
+  padding: 12px 42px 12px 16px; // 아이콘 공간 확보
   background-color: #f4f4f4;
   border: 1px solid #ddd;
   border-radius: 999px;
