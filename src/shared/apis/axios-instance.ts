@@ -20,3 +20,10 @@ axiosInstance.interceptors.request.use(
     return Promise.reject(error);
   }
 )
+
+axiosInstance.interceptors.response.use(null, (error) => {
+  if (error.response && error.response.status === 401) {
+     useTokenStore.getState().clearToken();
+    window.location.replace('/')
+  }
+})
